@@ -1,0 +1,8 @@
+: macro display_url -> $url {
+: '<a href="' | mark_raw; $url | mark_raw; '">' | mark_raw; $url; '</a>' | mark_raw;
+: }
+<ul>
+: for $urls -> $u {
+    <li><: display_url($u) :></li>
+: }
+</ul>

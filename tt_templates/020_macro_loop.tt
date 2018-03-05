@@ -1,0 +1,10 @@
+[%-
+MACRO display_url(url) BLOCK;
+%]<a href="[% url %]">[% url | html %]</a>[%
+END;
+-%]
+<ul>[%
+FOR u IN urls %]
+    <li>[% display_url(u) %]</li>[%
+END %]
+</ul>
