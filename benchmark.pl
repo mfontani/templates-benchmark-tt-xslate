@@ -50,12 +50,13 @@ my $TX = Text::Xslate->new(
 my $JSON = Cpanel::JSON::XS->new->utf8;
 
 {
-    my $table = Text::Table->new('Function', 'TT/s', 'TX/s', '+/-');
-    my @jsons = reverse glob './data/*.json';
+    my $runtime = shift @ARGV || $DEFAULT_RUNTIME;
+    my $table   = Text::Table->new('Function', 'TT/s', 'TX/s', '+/-');
+    my @jsons   = reverse glob './data/*.json';
     for my $file (@jsons) {
         my $data    = $JSON->decode(path($file)->slurp_utf8);
         my $base    = basename($file) =~ s![.]json\z!!xmsgr;
-        benchmark($base, $data, $table);
+        benchmark($base, $data, $table, $runtime);
     }
     binmode STDOUT, ':encoding(UTF-8)';
     print $table;
@@ -64,15 +65,15 @@ my $JSON = Cpanel::JSON::XS->new->utf8;
 exit 0;
 
 sub benchmark {
-    my ($base, $data, $table) = @_;
+    my ($base, $data, $table, $runtime) = @_;
 
     my $tt_file = "$base.tt";
     croak "No such file: $TT_DIR/$tt_file" if !-f "$TT_DIR/$tt_file";
     my $tx_file = "$base.tx";
     croak "No such file: $TX_DIR/$tx_file" if !-f "$TX_DIR/$tx_file";
 
-    my $tt_data = _benchmark_one('TT', $base, \&tt_exec, $TT, $tt_file, $data);
-    my $tx_data = _benchmark_one('TX', $base, \&tx_exec, $TX, $tx_file, $data);
+    my $tt_data = _benchmark_one('TT', $base, \&tt_exec, $TT, $tt_file, $data, $runtime);
+    my $tx_data = _benchmark_one('TX', $base, \&tx_exec, $TX, $tx_file, $data, $runtime);
     if ($tt_data->{out} ne $tx_data->{out}) {
         warn "$base output differs!\nTT: \Q$tt_data->{out}\E\nTX: \Q$tx_data->{out}\E\n";
     }
@@ -84,14 +85,14 @@ sub benchmark {
 }
 
 sub _benchmark_one {
-    my ($what, $base, $subref, $instance, $file, $data) = @_;
+    my ($what, $base, $subref, $instance, $file, $data, $runtime) = @_;
 
     $subref->($instance, $file, $data);    # cache things
 
     my $t0 = [gettimeofday];
     $subref->($instance, $file, $data) for 1..$DEFAULT_ITERATIONS;
     my $done    = tv_interval($t0);
-    my $iterate = int( $DEFAULT_ITERATIONS * $DEFAULT_RUNTIME / $done );
+    my $iterate = int( $DEFAULT_ITERATIONS * $runtime / $done );
     warn "$base: doing $iterate iterations for $what...\n";
     $t0 = [gettimeofday];
     my $out = '';
