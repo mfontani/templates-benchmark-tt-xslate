@@ -26,9 +26,15 @@ const my $DEFAULT_RUNTIME    => 1; # seconds
 const my $TT_DIR             => './tt_templates/';
 const my $TX_DIR             => './tx_templates/';
 const my $RESULTS_DIR        => './results/';
+const my $RX_NUMBER          => qr!\A\d+\z!xms;
 
 mkdir $RESULTS_DIR
     if !-d $RESULTS_DIR;
+
+# Global Options
+my ($FORCE)   = grep { $_ eq '-f' }       @ARGV; @ARGV = grep { $_ ne '-f' } @ARGV;
+my ($RUNTIME) = grep { $_ =~ $RX_NUMBER } @ARGV; @ARGV = grep { $_ !~ $RX_NUMBER } @ARGV;
+$RUNTIME //= $DEFAULT_RUNTIME;
 
 my $TT = Template->new(
     UNICODE      => 1,
@@ -57,13 +63,16 @@ my $TX = Text::Xslate->new(
 my $JSON = Cpanel::JSON::XS->new->utf8;
 
 {
-    my $runtime = shift @ARGV || $DEFAULT_RUNTIME;
-    my $table   = Text::Table->new('Function', 'TT done', 'TT seconds', 'TT/s', 'TX done', 'TX seconds', 'TX/s', 'TX vs TT +/-');
-    my @jsons   = reverse glob './data/*.json';
+    my $table       = Text::Table->new('Function', 'TT done', 'TT seconds', 'TT/s', 'TX done', 'TX seconds', 'TX/s', 'TX vs TT +/-');
+    my @jsons       = reverse glob './data/*.json';
+    my %wants_tests = map { $_ => 1 } @ARGV;
     for my $file (@jsons) {
-        my $data    = $JSON->decode(path($file)->slurp_utf8);
-        my $base    = basename($file) =~ s![.]json\z!!xmsgr;
-        benchmark($base, $data, $table, $runtime);
+        my $base = basename($file) =~ s![.]json\z!!xmsgr;
+        if (scalar keys %wants_tests) {
+            next if !exists $wants_tests{$base};
+        }
+        my $data = $JSON->decode(path($file)->slurp_utf8);
+        benchmark($base, $data, $table);
     }
     binmode STDOUT, ':encoding(UTF-8)';
     print $table;
@@ -72,7 +81,7 @@ my $JSON = Cpanel::JSON::XS->new->utf8;
 exit 0;
 
 sub benchmark {
-    my ($base, $data, $table, $runtime) = @_;
+    my ($base, $data, $table) = @_;
 
     print "Benchmarking $base...";
 
@@ -81,15 +90,16 @@ sub benchmark {
     my $tx_file = "$base.tx";
     croak "No such file: $TX_DIR/$tx_file" if !-f "$TX_DIR/$tx_file";
 
-    my $tt_data = _benchmark_one('TT', $base, \&tt_exec, $TT, $tt_file, $data, $runtime);
-    my $tx_data = _benchmark_one('TX', $base, \&tx_exec, $TX, $tx_file, $data, $runtime);
+    my $tt_data = _benchmark_one('TT', $base, \&tt_exec, $TT, $tt_file, $data);
+    my $tx_data = _benchmark_one('TX', $base, \&tx_exec, $TX, $tx_file, $data);
     if ($tt_data->{out} ne $tx_data->{out}) {
         warn "$base output differs!\nTT: \Q$tt_data->{out}\E\nTX: \Q$tx_data->{out}\E\n";
         path("./tt.out")->spew_utf8($tt_data->{out});
         path("./tx.out")->spew_utf8($tx_data->{out});
         warn diff(\$tt_data->{out}, \$tx_data->{out});
+        exit 1;
     }
-    $table->add("${runtime}s $base",
+    $table->add("${RUNTIME}s $base",
         $tt_data->{iterate}, (sprintf '%.2f', $tt_data->{done}),
         (sprintf '%.2f', $tt_data->{per_sec}),
         $tx_data->{iterate}, (sprintf '%.2f', $tx_data->{done}),
@@ -100,10 +110,10 @@ sub benchmark {
 }
 
 sub _benchmark_one {
-    my ($what, $base, $subref, $instance, $file, $data, $runtime) = @_;
+    my ($what, $base, $subref, $instance, $file, $data) = @_;
 
-    my $results_file = "$RESULTS_DIR/$runtime.$what.$base.json";
-    if (-f $results_file) {
+    my $results_file = "$RESULTS_DIR/$RUNTIME.$what.$base.json";
+    if (-f $results_file && !$FORCE) {
         print " $results_file cached...";
         return $JSON->decode(path($results_file)->slurp_utf8)
     }
@@ -113,7 +123,7 @@ sub _benchmark_one {
     my $t0 = [gettimeofday];
     $subref->($instance, $file, $data) for 1..$DEFAULT_ITERATIONS;
     my $done    = tv_interval($t0);
-    my $iterate = int( $DEFAULT_ITERATIONS * $runtime * 1.2 / $done );
+    my $iterate = int( $DEFAULT_ITERATIONS * $RUNTIME * 1.2 / $done );
     warn "$base: doing $iterate iterations for $what...\n" if $ENV{DEBUG};
     $t0 = [gettimeofday];
     my $out = '';
