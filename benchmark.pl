@@ -23,9 +23,9 @@ $|++;
 
 const my $DEFAULT_ITERATIONS => 500;
 const my $DEFAULT_RUNTIME    => 1; # seconds
-const my $TT_DIR             => './tt_templates/';
-const my $TX_DIR             => './tx_templates/';
-const my $RESULTS_DIR        => './results/';
+const my $TT_DIR             => './tt_templates';
+const my $TX_DIR             => './tx_templates';
+const my $RESULTS_DIR        => './results';
 const my $RX_NUMBER          => qr!\A\d+\z!xms;
 
 mkdir $RESULTS_DIR
