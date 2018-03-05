@@ -113,7 +113,7 @@ sub _benchmark_one {
     my $t0 = [gettimeofday];
     $subref->($instance, $file, $data) for 1..$DEFAULT_ITERATIONS;
     my $done    = tv_interval($t0);
-    my $iterate = int( $DEFAULT_ITERATIONS * $runtime / $done );
+    my $iterate = int( $DEFAULT_ITERATIONS * $runtime * 1.2 / $done );
     warn "$base: doing $iterate iterations for $what...\n" if $ENV{DEBUG};
     $t0 = [gettimeofday];
     my $out = '';
