@@ -97,6 +97,7 @@ sub benchmark {
         path("./tt.out")->spew_utf8($tt_data->{out});
         path("./tx.out")->spew_utf8($tx_data->{out});
         warn diff(\$tt_data->{out}, \$tx_data->{out});
+        path("$RESULTS_DIR/$RUNTIME.$_.$base.json")->remove for qw<TT TX>;
         exit 1;
     }
     $table->add("${RUNTIME}s $base",
