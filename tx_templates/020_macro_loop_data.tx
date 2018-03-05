@@ -1,0 +1,8 @@
+: macro display_img -> $img {
+: '<img src="' | mark_raw; $base_domain | mark_raw; $img.url | mark_raw; '" alt="' | mark_raw; $img.alt || 'an image'; '"/>' | mark_raw;
+: }
+<ul>
+: for $imgs -> $i {
+    <li><: display_img($i) :></li>
+: }
+</ul>

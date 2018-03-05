@@ -1,0 +1,10 @@
+[%-
+MACRO display_img(img) BLOCK;
+%]<img src="[% base_domain %][% img.url %]" alt="[% img.alt || 'an image' | html %]"/>[%
+END;
+-%]
+<ul>[%
+FOR i IN imgs %]
+    <li>[% display_img(i) %]</li>[%
+END %]
+</ul>
