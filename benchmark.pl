@@ -58,7 +58,7 @@ my $JSON = Cpanel::JSON::XS->new->utf8;
 
 {
     my $runtime = shift @ARGV || $DEFAULT_RUNTIME;
-    my $table   = Text::Table->new('Function', 'TT/s', 'TX/s', '+/-');
+    my $table   = Text::Table->new('Function', 'TT done', 'TT seconds', 'TT/s', 'TX done', 'TX seconds', 'TX/s', 'TX vs TT +/-');
     my @jsons   = reverse glob './data/*.json';
     for my $file (@jsons) {
         my $data    = $JSON->decode(path($file)->slurp_utf8);
@@ -90,7 +90,9 @@ sub benchmark {
         warn diff(\$tt_data->{out}, \$tx_data->{out});
     }
     $table->add("${runtime}s $base",
+        $tt_data->{iterate}, (sprintf '%.2f', $tt_data->{done}),
         (sprintf '%.2f', $tt_data->{per_sec}),
+        $tx_data->{iterate}, (sprintf '%.2f', $tx_data->{done}),
         (sprintf '%.2f', $tx_data->{per_sec}),
         (sprintf '%.2f%%', $tx_data->{per_sec} * 100 / $tt_data->{per_sec}),
     );
