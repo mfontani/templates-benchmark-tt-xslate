@@ -1,0 +1,3 @@
+[% FOR k IN myhash.keys.sort -%]
+- [% k | html %]: [% myhash.$k | html %]
+[% END -%]

@@ -1,0 +1,4 @@
+: my $sorted = $myhash.keys().sort();
+: for $sorted -> $k {
+- <: $k :>: <: $myhash[$k] :>
+: }
