@@ -1,0 +1,3 @@
+foo
+[% INCLUDE "010_include_small_literal__included.tt" %]
+bar
