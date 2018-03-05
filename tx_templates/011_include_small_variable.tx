@@ -1,0 +1,3 @@
+foo
+<: include "011_include_small_variable__included.tx" :>
+bar
