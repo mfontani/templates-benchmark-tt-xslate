@@ -22,6 +22,10 @@ const my $DEFAULT_ITERATIONS => 50;
 const my $DEFAULT_RUNTIME    => 1; # seconds
 const my $TT_DIR             => './tt_templates/';
 const my $TX_DIR             => './tx_templates/';
+const my $RESULTS_DIR        => './results/';
+
+mkdir $RESULTS_DIR
+    if !-d $RESULTS_DIR;
 
 my $TT = Template->new(
     UNICODE      => 1,
@@ -67,6 +71,8 @@ exit 0;
 sub benchmark {
     my ($base, $data, $table, $runtime) = @_;
 
+    warn "Benchmarking $base...\n";
+
     my $tt_file = "$base.tt";
     croak "No such file: $TT_DIR/$tt_file" if !-f "$TT_DIR/$tt_file";
     my $tx_file = "$base.tx";
@@ -87,20 +93,25 @@ sub benchmark {
 sub _benchmark_one {
     my ($what, $base, $subref, $instance, $file, $data, $runtime) = @_;
 
+    my $results_file = "$RESULTS_DIR/$runtime.$what.$base.json";
+    return $JSON->decode(path($results_file)->slurp_utf8)
+        if -f $results_file;
+
     $subref->($instance, $file, $data);    # cache things
 
     my $t0 = [gettimeofday];
     $subref->($instance, $file, $data) for 1..$DEFAULT_ITERATIONS;
     my $done    = tv_interval($t0);
     my $iterate = int( $DEFAULT_ITERATIONS * $runtime / $done );
-    warn "$base: doing $iterate iterations for $what...\n";
+    warn "$base: doing $iterate iterations for $what...\n" if $ENV{DEBUG};
     $t0 = [gettimeofday];
     my $out = '';
     $out = $subref->($instance, $file, $data) for 1..$iterate;
     $done = tv_interval($t0);
     warn sprintf "%s %s done %d iterations in %.5f, i.e. %.4f/s\n",
-        $what, $base, $iterate, $done, $iterate/$done;
-    return {
+        $what, $base, $iterate, $done, $iterate/$done
+        if $ENV{DEBUG};
+    my $ret = {
         what    => $what,
         base    => $base,
         iterate => $iterate,
@@ -108,6 +119,8 @@ sub _benchmark_one {
         per_sec => $iterate / $done,
         out     => $out,
     };
+    path($results_file)->spew_utf8($JSON->encode($ret));
+    return $ret;
 }
 
 sub tt_exec {
