@@ -51,7 +51,7 @@ my $JSON = Cpanel::JSON::XS->new->utf8;
 
 {
     my $table = Text::Table->new('Function', 'TT/s', 'TX/s', '+/-');
-    my @jsons = glob './data/*.json';
+    my @jsons = reverse glob './data/*.json';
     for my $file (@jsons) {
         my $data    = $JSON->decode(path($file)->slurp_utf8);
         my $base    = basename($file) =~ s![.]json\z!!xmsgr;
@@ -73,6 +73,9 @@ sub benchmark {
 
     my $tt_data = _benchmark_one('TT', $base, \&tt_exec, $TT, $tt_file, $data);
     my $tx_data = _benchmark_one('TX', $base, \&tx_exec, $TX, $tx_file, $data);
+    if ($tt_data->{out} ne $tx_data->{out}) {
+        warn "$base output differs!\nTT: \Q$tt_data->{out}\E\nTX: \Q$tx_data->{out}\E\n";
+    }
     $table->add($base,
         (sprintf '%.2f', $tt_data->{per_sec}),
         (sprintf '%.2f', $tx_data->{per_sec}),
@@ -91,7 +94,8 @@ sub _benchmark_one {
     my $iterate = int( $DEFAULT_ITERATIONS * $DEFAULT_RUNTIME / $done );
     warn "$base: doing $iterate iterations for $what...\n";
     $t0 = [gettimeofday];
-    $subref->($instance, $file, $data) for 1..$iterate;
+    my $out = '';
+    $out = $subref->($instance, $file, $data) for 1..$iterate;
     $done = tv_interval($t0);
     warn sprintf "%s %s done %d iterations in %.5f, i.e. %.4f/s\n",
         $what, $base, $iterate, $done, $iterate/$done;
@@ -101,6 +105,7 @@ sub _benchmark_one {
         iterate => $iterate,
         done    => $done,
         per_sec => $iterate / $done,
+        out     => $out,
     };
 }
 
@@ -110,6 +115,7 @@ sub tt_exec {
     my $output = '';
     $tt->process($tt_file, $data, \$output)
         or die $tt->error;
+    return $output;
 }
 
 sub tx_exec {
@@ -117,4 +123,5 @@ sub tx_exec {
 
     my $output = '';
     $output = $tx->render($tx_file, $data);
+    return $output;
 }
