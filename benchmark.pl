@@ -17,6 +17,7 @@ use File::Basename qw<basename>;
 use Time::HiRes qw<gettimeofday tv_interval>;
 use FindBin qw<>;
 use Text::Table qw<>;
+use Text::Diff qw<diff>;
 
 $|++;
 
@@ -84,6 +85,9 @@ sub benchmark {
     my $tx_data = _benchmark_one('TX', $base, \&tx_exec, $TX, $tx_file, $data, $runtime);
     if ($tt_data->{out} ne $tx_data->{out}) {
         warn "$base output differs!\nTT: \Q$tt_data->{out}\E\nTX: \Q$tx_data->{out}\E\n";
+        path("./tt.out")->spew_utf8($tt_data->{out});
+        path("./tx.out")->spew_utf8($tx_data->{out});
+        warn diff(\$tt_data->{out}, \$tx_data->{out});
     }
     $table->add("${runtime}s $base",
         (sprintf '%.2f', $tt_data->{per_sec}),
