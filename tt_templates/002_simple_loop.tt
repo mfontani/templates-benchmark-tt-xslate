@@ -1,0 +1,5 @@
+[% FOR v IN myloopvar -%]
+-[% FOR k IN v.keys.sort -%]
+  - [% k | html %]: [% v.$k | html %]
+[% END -%]
+[% END -%]
