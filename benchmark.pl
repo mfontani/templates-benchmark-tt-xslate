@@ -18,6 +18,8 @@ use Time::HiRes qw<gettimeofday tv_interval>;
 use FindBin qw<>;
 use Text::Table qw<>;
 
+$|++;
+
 const my $DEFAULT_ITERATIONS => 50;
 const my $DEFAULT_RUNTIME    => 1; # seconds
 const my $TT_DIR             => './tt_templates/';
@@ -71,7 +73,7 @@ exit 0;
 sub benchmark {
     my ($base, $data, $table, $runtime) = @_;
 
-    warn "Benchmarking $base...\n";
+    print "Benchmarking $base...";
 
     my $tt_file = "$base.tt";
     croak "No such file: $TT_DIR/$tt_file" if !-f "$TT_DIR/$tt_file";
@@ -83,19 +85,22 @@ sub benchmark {
     if ($tt_data->{out} ne $tx_data->{out}) {
         warn "$base output differs!\nTT: \Q$tt_data->{out}\E\nTX: \Q$tx_data->{out}\E\n";
     }
-    $table->add($base,
+    $table->add("${runtime}s $base",
         (sprintf '%.2f', $tt_data->{per_sec}),
         (sprintf '%.2f', $tx_data->{per_sec}),
         (sprintf '%.2f%%', $tx_data->{per_sec} * 100 / $tt_data->{per_sec}),
     );
+    print "done\n";
 }
 
 sub _benchmark_one {
     my ($what, $base, $subref, $instance, $file, $data, $runtime) = @_;
 
     my $results_file = "$RESULTS_DIR/$runtime.$what.$base.json";
-    return $JSON->decode(path($results_file)->slurp_utf8)
-        if -f $results_file;
+    if (-f $results_file) {
+        print " $results_file cached...";
+        return $JSON->decode(path($results_file)->slurp_utf8)
+    }
 
     $subref->($instance, $file, $data);    # cache things
 
@@ -120,6 +125,7 @@ sub _benchmark_one {
         out     => $out,
     };
     path($results_file)->spew_utf8($JSON->encode($ret));
+    print " $results_file done...";
     return $ret;
 }
 
