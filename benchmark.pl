@@ -16,9 +16,10 @@ use Cpanel::JSON::XS qw<>;
 use File::Basename qw<basename>;
 use Time::HiRes qw<gettimeofday tv_interval>;
 use FindBin qw<>;
+use Text::Table qw<>;
 
-const my $DEFAULT_ITERATIONS => 30;
-const my $DEFAULT_RUNTIME    => 10; # seconds
+const my $DEFAULT_ITERATIONS => 50;
+const my $DEFAULT_RUNTIME    => 1; # seconds
 const my $TT_DIR             => './tt_templates/';
 const my $TX_DIR             => './tx_templates/';
 
@@ -49,53 +50,58 @@ my $TX = Text::Xslate->new(
 my $JSON = Cpanel::JSON::XS->new->utf8;
 
 {
+    my $table = Text::Table->new('Function', 'TT/s', 'TX/s', '+/-');
     my @jsons = glob './data/*.json';
     for my $file (@jsons) {
         my $data    = $JSON->decode(path($file)->slurp_utf8);
         my $base    = basename($file) =~ s![.]json\z!!xmsgr;
-        benchmark($base, $data);
+        benchmark($base, $data, $table);
     }
+    binmode STDOUT, ':encoding(UTF-8)';
+    print $table;
 }
 
 exit 0;
 
 sub benchmark {
-    my ($base, $data) = @_;
+    my ($base, $data, $table) = @_;
 
     my $tt_file = "$base.tt";
     croak "No such file: $TT_DIR/$tt_file" if !-f "$TT_DIR/$tt_file";
     my $tx_file = "$base.tx";
     croak "No such file: $TX_DIR/$tx_file" if !-f "$TX_DIR/$tx_file";
 
-    tt_exec($TT, $tt_file, $data);    # cache things
+    my $tt_data = _benchmark_one('TT', $base, \&tt_exec, $TT, $tt_file, $data);
+    my $tx_data = _benchmark_one('TX', $base, \&tx_exec, $TX, $tx_file, $data);
+    $table->add($base,
+        (sprintf '%.2f', $tt_data->{per_sec}),
+        (sprintf '%.2f', $tx_data->{per_sec}),
+        (sprintf '%.2f%%', $tx_data->{per_sec} * 100 / $tt_data->{per_sec}),
+    );
+}
 
-    my $tt_t0 = [gettimeofday];
-    tt_exec($TT, $tt_file, $data) for 1..$DEFAULT_ITERATIONS;
-    my $tt_done = tv_interval($tt_t0);
-    # TT took $tt_done to do $DEFAULT_ITERATIONS iterations.
-    # it'll take ... to run for about $DEFAULT_RUNTIME.
-    # $tt_done : $DEFAULT_ITERATIONS = $DEFAULT_RUNTIME : x
-    my $tt_iterate = int( $DEFAULT_ITERATIONS * $DEFAULT_RUNTIME / $tt_done );
-    warn "$base: Doing $tt_iterate iterations for TT...\n";
-    $tt_t0 = [gettimeofday];
-    tt_exec($TT, $tt_file, $data) for 1..$tt_iterate;
-    $tt_done = tv_interval($tt_t0);
-    warn sprintf "%s %s done %d iterations in %.5f, i.e. %.4f/s\n", 'TT', $base, $tt_iterate, $tt_done, $tt_iterate/$tt_done;
+sub _benchmark_one {
+    my ($what, $base, $subref, $instance, $file, $data) = @_;
 
-    tx_exec($TX, $tx_file, $data);    # cache things
+    $subref->($instance, $file, $data);    # cache things
 
-    my $tx_t0 = [gettimeofday];
-    tx_exec($TX, $tx_file, $data) for 1..$DEFAULT_ITERATIONS;
-    my $tx_done = tv_interval($tx_t0);
-    # TT took $tx_done to do $DEFAULT_ITERATIONS iterations.
-    # it'll take ... to run for about $DEFAULT_RUNTIME.
-    # $tx_done : $DEFAULT_ITERATIONS = $DEFAULT_RUNTIME : x
-    my $tx_iterate = int( $DEFAULT_ITERATIONS * $DEFAULT_RUNTIME / $tx_done );
-    warn "$base Doing $tx_iterate iterations for TX...\n";
-    $tx_t0 = [gettimeofday];
-    tx_exec($TX, $tx_file, $data) for 1..$tx_iterate;
-    $tx_done = tv_interval($tx_t0);
-    warn sprintf "%s %s done %d iterations in %.5f, i.e. %.4f/s\n", 'TX', $base, $tx_iterate, $tx_done, $tx_iterate/$tx_done;
+    my $t0 = [gettimeofday];
+    $subref->($instance, $file, $data) for 1..$DEFAULT_ITERATIONS;
+    my $done    = tv_interval($t0);
+    my $iterate = int( $DEFAULT_ITERATIONS * $DEFAULT_RUNTIME / $done );
+    warn "$base: doing $iterate iterations for $what...\n";
+    $t0 = [gettimeofday];
+    $subref->($instance, $file, $data) for 1..$iterate;
+    $done = tv_interval($t0);
+    warn sprintf "%s %s done %d iterations in %.5f, i.e. %.4f/s\n",
+        $what, $base, $iterate, $done, $iterate/$done;
+    return {
+        what    => $what,
+        base    => $base,
+        iterate => $iterate,
+        done    => $done,
+        per_sec => $iterate / $done,
+    };
 }
 
 sub tt_exec {
