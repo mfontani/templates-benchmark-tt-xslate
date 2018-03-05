@@ -1,0 +1,3 @@
+[% FOR v IN myloopvar -%]
+- [% v | html %]
+[% END -%]
