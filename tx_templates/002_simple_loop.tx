@@ -1,5 +1,5 @@
-: for $myloopvar -> $v { my $sorted = $v.keys().sort();
--<: for $sorted -> $k { -:>
+: for $myloopvar -> $v {
+-<: for $v.keys().sort() -> $k { -:>
   - <: $k :>: <: $v[$k] :>
 : }
 : }
