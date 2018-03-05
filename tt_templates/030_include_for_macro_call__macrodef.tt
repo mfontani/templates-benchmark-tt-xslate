@@ -1,0 +1,4 @@
+[%- MACRO display_xurl BLOCK -%]
+<a href="[% xurl %]">[% xurl | html %]</a>[%
+END;
+display_xurl() -%]

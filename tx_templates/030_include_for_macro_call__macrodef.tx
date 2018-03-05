@@ -1,0 +1,4 @@
+: macro display_xurl -> {
+: '<a href="' | mark_raw; $xurl | mark_raw; '">' | mark_raw; $xurl; '</a>' | mark_raw;
+: }
+: display_xurl()
