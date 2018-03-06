@@ -73,8 +73,8 @@ $TX = Text::Xslate->new(
 );
 
 {
-    my @cols = $NARROW ? ('Function',                          'TT/s',                          'TX/s', '±TX/TT')
-             :           ('Function', 'TT done', 'TT seconds', 'TT/s', 'TX done', 'TX seconds', 'TX/s', '±TX/TT');
+    my @cols = $NARROW ? ('Function',                          'TT/s',                          'TX/s', "±TX/TT\n&num")
+             :           ('Function', 'TT done', 'TT seconds', 'TT/s', 'TX done', 'TX seconds', 'TX/s', "±TX/TT\n&num");
     my $table       = Text::Table->new(@cols);
     my @jsons       = reverse glob './data/*.json';
     my %wants_tests = map { $_ => 1 } @ARGV;
