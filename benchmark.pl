@@ -142,7 +142,7 @@ sub benchmark {
         (sprintf '%.2f', $tt_data->{per_sec}),
         $tx_data->{iterate}, (sprintf '%.2f', $tx_data->{done}),
         (sprintf '%.2f', $tx_data->{per_sec}),
-        (sprintf '%.2f%%', $tx_data->{per_sec} * 100 / $tt_data->{per_sec}),
+        (sprintf '%+.2f%%', $tx_data->{per_sec} * 100 / $tt_data->{per_sec}),
     );
 }
 
