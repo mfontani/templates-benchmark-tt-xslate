@@ -1,0 +1,10 @@
+[% FOR v IN myloopvar -%]
+- [% v.foo %][%
+    'FIRST' IF loop.first;
+    'LAST'  IF loop.last;
+    loop.index % 2 == 0 ? 'EVEN' : 'ODD';
+    %]
+  0-based index: '[% loop.index %]'
+  0-based index: '[% loop.index %]'
+  1-based index: '[% loop.count %]'
+[% END -%]

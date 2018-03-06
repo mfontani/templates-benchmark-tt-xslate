@@ -1,0 +1,10 @@
+: for $myloopvar -> $v {
+- <: $v.foo | mark_raw :><:
+    $~v.is_first ? 'FIRST' : '';
+    $~v.is_last  ? 'LAST'  : '';
+    $~v.cycle('EVEN', 'ODD');
+    :>
+  0-based index: '<: $~v :>'
+  0-based index: '<: $~v.index :>'
+  1-based index: '<: $~v.count :>'
+: }
