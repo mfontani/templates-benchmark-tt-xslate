@@ -36,6 +36,7 @@ mkdir $RESULTS_DIR
 # Global Options
 my ($FORCE)     = grep { $_ eq '-f' }       @ARGV; @ARGV = grep { $_ ne '-f' } @ARGV;
 my ($DUMBBENCH) = grep { $_ eq '-D' }       @ARGV; @ARGV = grep { $_ ne '-D' } @ARGV;
+my ($LIST)      = grep { $_ eq 'list' }     @ARGV; @ARGV = grep { $_ ne 'list' } @ARGV;
 my ($RUNTIME)   = grep { $_ =~ $RX_NUMBER } @ARGV; @ARGV = grep { $_ !~ $RX_NUMBER } @ARGV;
 $RUNTIME //= $DEFAULT_RUNTIME;
 
@@ -74,14 +75,23 @@ $TX = Text::Xslate->new(
     my $table       = Text::Table->new('Function', 'TT done', 'TT seconds', 'TT/s', 'TX done', 'TX seconds', 'TX/s', 'TX vs TT +/-');
     my @jsons       = reverse glob './data/*.json';
     my %wants_tests = map { $_ => 1 } @ARGV;
+    my @bases       = ();
     for my $file (@jsons) {
         my $base = basename($file) =~ s![.]json\z!!xmsgr;
+        if ($LIST) {
+            push @bases, $base;
+            next;
+        }
         if (scalar keys %wants_tests) {
             next if !exists $wants_tests{$base};
         }
         my $data = $JSON->decode(path($file)->slurp_utf8);
         benchmark($base, $data, $table) if !$DUMBBENCH;
         dumb_benchmark($base, $data)    if $DUMBBENCH;
+    }
+    if ($LIST) {
+        say "@bases";
+        exit 0;
     }
     print
         $table->title,
