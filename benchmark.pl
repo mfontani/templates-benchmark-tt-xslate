@@ -18,8 +18,10 @@ use Time::HiRes qw<gettimeofday tv_interval>;
 use FindBin qw<>;
 use Text::Table qw<>;
 use Text::Diff qw<diff>;
+use Dumbbench qw<>;
 
 $|++;
+binmode STDOUT, ':encoding(UTF-8)';
 
 const my $DEFAULT_ITERATIONS => 500;
 const my $DEFAULT_RUNTIME    => 1; # seconds
@@ -32,8 +34,9 @@ mkdir $RESULTS_DIR
     if !-d $RESULTS_DIR;
 
 # Global Options
-my ($FORCE)   = grep { $_ eq '-f' }       @ARGV; @ARGV = grep { $_ ne '-f' } @ARGV;
-my ($RUNTIME) = grep { $_ =~ $RX_NUMBER } @ARGV; @ARGV = grep { $_ !~ $RX_NUMBER } @ARGV;
+my ($FORCE)     = grep { $_ eq '-f' }       @ARGV; @ARGV = grep { $_ ne '-f' } @ARGV;
+my ($DUMBBENCH) = grep { $_ eq '-D' }       @ARGV; @ARGV = grep { $_ ne '-D' } @ARGV;
+my ($RUNTIME)   = grep { $_ =~ $RX_NUMBER } @ARGV; @ARGV = grep { $_ !~ $RX_NUMBER } @ARGV;
 $RUNTIME //= $DEFAULT_RUNTIME;
 
 my $TT = Template->new(
@@ -72,13 +75,13 @@ my $JSON = Cpanel::JSON::XS->new->utf8;
             next if !exists $wants_tests{$base};
         }
         my $data = $JSON->decode(path($file)->slurp_utf8);
-        benchmark($base, $data, $table);
+        benchmark($base, $data, $table) if !$DUMBBENCH;
+        dumb_benchmark($base, $data)    if $DUMBBENCH;
     }
-    binmode STDOUT, ':encoding(UTF-8)';
     print
         $table->title,
         $table->body,
-        ;
+        if !$DUMBBENCH;
 }
 
 exit 0;
@@ -111,6 +114,32 @@ sub benchmark {
         (sprintf '%.2f%%', $tx_data->{per_sec} * 100 / $tt_data->{per_sec}),
     );
     print "done\n";
+}
+
+sub dumb_benchmark {
+    my ($base, $data) = @_;
+
+    say "Dumb-Benchmarking $base...";
+
+    my $tt_file = "$base.tt";
+    croak "No such file: $TT_DIR/$tt_file" if !-f "$TT_DIR/$tt_file";
+    my $tx_file = "$base.tx";
+    croak "No such file: $TX_DIR/$tx_file" if !-f "$TX_DIR/$tx_file";
+
+    my $bench = Dumbbench->new(
+        target_rel_precision => 0.002,
+        initial_runs         => $DEFAULT_ITERATIONS,
+    );
+    $bench->add_instances(
+        Dumbbench::Instance::PerlSub->new(name => 'TT', code => sub {
+            tt_exec($TT, $tt_file, $data);
+        }),
+        Dumbbench::Instance::PerlSub->new(name => 'TX', code => sub {
+            tx_exec($TX, $tx_file, $data);
+        }),
+    );
+    $bench->run;
+    $bench->report(0, { float => 1 });
 }
 
 sub _benchmark_one {
