@@ -51,7 +51,8 @@ my $TT = Template->new(
     COMPILE_EXT  => '.ttc2',
 );
 
-my $TX = Text::Xslate->new(
+my $TX; # to allow the functions to reference the templating system
+$TX = Text::Xslate->new(
     verbose     => 1,          # warn about non-trivial stuff
     type        => 'html',
     input_layer => ':utf8',    # No need for :set bomb
@@ -61,7 +62,10 @@ my $TX = Text::Xslate->new(
         'Text::Xslate::Bridge::TT2Like',
     ],
     function => {
-        uri => \&URI::Escape::uri_escape_utf8,
+        uri             => \&URI::Escape::uri_escape_utf8,
+        runtime_include => sub {
+            return Text::Xslate::mark_raw( $TX->render("$_[0]", $TX->current_vars) );
+        },
     },
     cache_dir => './.tx_cache/',
 );
