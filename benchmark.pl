@@ -86,16 +86,23 @@ my $JSON = Cpanel::JSON::XS->new->utf8;
 
 exit 0;
 
-sub benchmark {
-    my ($base, $data, $table) = @_;
+sub files_for {
+    my ($base) = @_;
 
     my $tt_file = "$base.tt";
     croak "No such file: $TT_DIR/$tt_file" if !-f "$TT_DIR/$tt_file";
     my $tx_file = "$base.tx";
     croak "No such file: $TX_DIR/$tx_file" if !-f "$TX_DIR/$tx_file";
 
+    return ($tt_file, $tx_file);
+}
+
+sub sanity_check {
+    my ($base, $tt_file, $tx_file, $data) = @_;
+
     my $tt_data = _benchmark_one('TT', $base, \&tt_exec, $TT, $tt_file, $data);
     my $tx_data = _benchmark_one('TX', $base, \&tx_exec, $TX, $tx_file, $data);
+
     if ($tt_data->{out} ne $tx_data->{out}) {
         warn "$base output differs!\nTT: \Q$tt_data->{out}\E\nTX: \Q$tx_data->{out}\E\n";
         path("./tt.out")->spew_utf8($tt_data->{out});
@@ -104,6 +111,17 @@ sub benchmark {
         path("$RESULTS_DIR/$RUNTIME.$_.$base.json")->remove for qw<TT TX>;
         exit 1;
     }
+}
+
+sub benchmark {
+    my ($base, $data, $table) = @_;
+
+    my ($tt_file, $tx_file) = files_for($base);
+    sanity_check($base, $tt_file, $tx_file, $data);
+
+    my $tt_data = _benchmark_all('TT', $base, \&tt_exec, $TT, $tt_file, $data);
+    my $tx_data = _benchmark_all('TX', $base, \&tx_exec, $TX, $tx_file, $data);
+
     $table->add("${RUNTIME}s $base",
         $tt_data->{iterate}, (sprintf '%.2f', $tt_data->{done}),
         (sprintf '%.2f', $tt_data->{per_sec}),
@@ -118,14 +136,8 @@ sub dumb_benchmark {
 
     warn "Dumb-Benchmarking $base...\n";
 
-    my $tt_file = "$base.tt";
-    croak "No such file: $TT_DIR/$tt_file" if !-f "$TT_DIR/$tt_file";
-    my $tx_file = "$base.tx";
-    croak "No such file: $TX_DIR/$tx_file" if !-f "$TX_DIR/$tx_file";
-
-    # Cache things...
-    tt_exec($TT, $tt_file, $data) for 1..$DEFAULT_ITERATIONS;
-    tx_exec($TX, $tx_file, $data) for 1..$DEFAULT_ITERATIONS;
+    my ($tt_file, $tx_file) = files_for($base);
+    sanity_check($base, $tt_file, $tx_file, $data);
 
     my $bench = Dumbbench->new(
         target_rel_precision => 0.002,
@@ -146,12 +158,16 @@ sub dumb_benchmark {
 sub _benchmark_one {
     my ($what, $base, $subref, $instance, $file, $data) = @_;
 
+    return $subref->($instance, $file, $data);
+}
+
+sub _benchmark_all {
+    my ($what, $base, $subref, $instance, $file, $data) = @_;
+
     my $results_file = "$RESULTS_DIR/$RUNTIME.$what.$base.json";
     if (-f $results_file && !$FORCE) {
         return $JSON->decode(path($results_file)->slurp_utf8)
     }
-
-    $subref->($instance, $file, $data);    # cache things
 
     my $t0 = [gettimeofday];
     $subref->($instance, $file, $data) for 1..$DEFAULT_ITERATIONS;
