@@ -56,7 +56,7 @@ my $TX = Text::Xslate->new(
     path        => [ $TX_DIR ],
     module      => [
         # Use similar variable methods to TT2
-        'Text::Xslate::Bridge::TT2Like',
+        # 'Text::Xslate::Bridge::TT2Like',
     ],
     function => {
         uri => \&URI::Escape::uri_escape_utf8,
