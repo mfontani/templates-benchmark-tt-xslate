@@ -126,6 +126,10 @@ sub dumb_benchmark {
     my $tx_file = "$base.tx";
     croak "No such file: $TX_DIR/$tx_file" if !-f "$TX_DIR/$tx_file";
 
+    # Cache things...
+    tt_exec($TT, $tt_file, $data) for 1..$DEFAULT_ITERATIONS;
+    tx_exec($TX, $tx_file, $data) for 1..$DEFAULT_ITERATIONS;
+
     my $bench = Dumbbench->new(
         target_rel_precision => 0.002,
         initial_runs         => $DEFAULT_ITERATIONS,
