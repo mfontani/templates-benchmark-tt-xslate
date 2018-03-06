@@ -15,5 +15,14 @@ benchmark-5: clean-caches
 benchmark-10: clean-caches
 	perl benchmark.pl 10
 
+benchmark-0.5-f: clean-caches
+	perl benchmark.pl -f 0.5
+benchmark-1-f: clean-caches
+	perl benchmark.pl -f 1
+benchmark-5-f: clean-caches
+	perl benchmark.pl -f 5
+benchmark-10-f: clean-caches
+	perl benchmark.pl -f 10
+
 clean-caches:
 	rm -rf ./.tt_cache/* ./.tx_cache/* tt.out tx.out
