@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Foo</title>
+</head>
+<body>
+: block my_content -> {}
+</body>
+</html>
