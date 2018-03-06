@@ -1,0 +1,11 @@
+: cascade "092_stories_list_wrapped_twice__wrapper.tx"
+: override my_content -> {
+<div id=page>
+    <div id=main_content>
+    : block main_content -> {}
+    </div>
+    <div id=sidebar>
+    ...
+    </div>
+</div>
+: }

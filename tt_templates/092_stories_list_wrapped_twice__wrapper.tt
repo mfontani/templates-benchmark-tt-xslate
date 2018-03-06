@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Foo - [% stories.0.headline | html %]</title>
+</head>
+<body>
+[% WRAPPER "092_stories_list_wrapped_twice__structure.tt" -%]
+[% content %]
+[%- END -%]
+</body>
+</html>
