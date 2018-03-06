@@ -1,5 +1,5 @@
 {"stories":[
-    {"url":"/1234/12/12/foobar/","headline":"foo <em>bar</em> baz","published_at":{"unixtime":"1519869708"},"section":"Blog","category":"news","image":{"url":"/foo10.jpg","alt":"a foo"}},
+    {"url":"/1234/12/12/foobar/","headline":"foo <em>bar</em> baz","published_at":{"unixtime":"1519869708"},"section":"Blog","category":"news","image":{"url":"/foo10.jpg?foo=bar&baz=quux","alt":"a \"foo\" bar"}},
     {"url":"/1235/12/12/foobar/","headline":"foo <em>bar</em> baz","published_at":{"unixtime":"1519869708"},"section":"Blog","category":"news","image":{"url":"/foo9.jpg","alt":"a foo"}},
     {"url":"/1236/12/12/foobar/","headline":"foo <em>bar</em> baz","published_at":{"unixtime":"1519869708"},"section":"Blog","category":"news","image":{"url":"/foo8.jpg","alt":"a foo"}},
     {"url":"/1237/12/12/foobar/","headline":"foo <em>bar</em> baz","published_at":{"unixtime":"1519869708"},"section":"Blog","category":"news","image":{"url":"/foo7.jpg","alt":"a foo"}},

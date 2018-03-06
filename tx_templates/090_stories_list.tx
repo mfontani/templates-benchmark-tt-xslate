@@ -4,7 +4,7 @@
     <a href="<: $story.url | mark_raw :>">
         <div class=section><: $story.section :></div>
         <h3><: $story.headline | mark_raw :></h3>
-        <img src="<: $story.image.url | mark_raw :>" alt="<: $story.image.alt :>">
+        <img src="<: $story.image.url :>" alt="<: $story.image.alt :>">
     </a>
 </article>
 : }

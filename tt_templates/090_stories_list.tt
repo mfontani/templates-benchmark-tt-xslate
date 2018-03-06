@@ -6,7 +6,7 @@ FOR story IN stories %]
     <a href="[% story.url %]">
         <div class=section>[% story.section | html %]</div>
         <h3>[% story.headline %]</h3>
-        <img src="[% story.image.url %]" alt="[% story.image.alt | html %]">
+        <img src="[% story.image.url | html %]" alt="[% story.image.alt | html %]">
     </a>
 </article>[%
 END %]
