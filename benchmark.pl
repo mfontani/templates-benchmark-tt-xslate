@@ -37,6 +37,7 @@ mkdir $RESULTS_DIR
 my ($FORCE)     = grep { $_ eq '-f' }       @ARGV; @ARGV = grep { $_ ne '-f' } @ARGV;
 my ($DUMBBENCH) = grep { $_ eq '-D' }       @ARGV; @ARGV = grep { $_ ne '-D' } @ARGV;
 my ($LIST)      = grep { $_ eq 'list' }     @ARGV; @ARGV = grep { $_ ne 'list' } @ARGV;
+my ($NARROW)    = grep { $_ eq '-n' }       @ARGV; @ARGV = grep { $_ ne '-n' } @ARGV;
 my ($RUNTIME)   = grep { $_ =~ $RX_NUMBER } @ARGV; @ARGV = grep { $_ !~ $RX_NUMBER } @ARGV;
 $RUNTIME //= $DEFAULT_RUNTIME;
 
@@ -72,7 +73,9 @@ $TX = Text::Xslate->new(
 );
 
 {
-    my $table       = Text::Table->new('Function', 'TT done', 'TT seconds', 'TT/s', 'TX done', 'TX seconds', 'TX/s', 'TX vs TT +/-');
+    my @cols = $NARROW ? ('Function',                          'TT/s',                          'TX/s', '±TX/TT')
+             :           ('Function', 'TT done', 'TT seconds', 'TT/s', 'TX done', 'TX seconds', 'TX/s', '±TX/TT');
+    my $table       = Text::Table->new(@cols);
     my @jsons       = reverse glob './data/*.json';
     my %wants_tests = map { $_ => 1 } @ARGV;
     my @bases       = ();
@@ -137,13 +140,13 @@ sub benchmark {
     my $tt_data = _benchmark_all('TT', $base, \&tt_exec, $TT, $tt_file, $data);
     my $tx_data = _benchmark_all('TX', $base, \&tx_exec, $TX, $tx_file, $data);
 
-    $table->add("${RUNTIME}s $base",
-        $tt_data->{iterate}, (sprintf '%.2f', $tt_data->{done}),
-        (sprintf '%.2f', $tt_data->{per_sec}),
-        $tx_data->{iterate}, (sprintf '%.2f', $tx_data->{done}),
-        (sprintf '%.2f', $tx_data->{per_sec}),
-        (sprintf '%+.2f%%', $tx_data->{per_sec} * 100 / $tt_data->{per_sec}),
-    );
+    my @cols = ("${RUNTIME}s $base");
+    push @cols, ($tt_data->{iterate}, (sprintf '%.2f', $tt_data->{done})) if !$NARROW;
+    push @cols, sprintf '%.2f', $tt_data->{per_sec};
+    push @cols, ($tx_data->{iterate}, (sprintf '%.2f', $tx_data->{done})) if !$NARROW;
+    push @cols, sprintf '%.2f', $tx_data->{per_sec};
+    push @cols, sprintf '%+.2f%%', $tx_data->{per_sec} * 100 / $tt_data->{per_sec};
+    $table->add(@cols);
 }
 
 sub dumb_benchmark {
