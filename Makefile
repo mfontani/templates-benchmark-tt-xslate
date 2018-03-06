@@ -16,4 +16,4 @@ benchmark-10: clean-caches
 	perl benchmark.pl 10
 
 clean-caches:
-	rm -rf ./.tt_cache/* ./.tx_cache/*
+	rm -rf ./.tt_cache/* ./.tx_cache/* tt.out tx.out
