@@ -75,7 +75,10 @@ my $JSON = Cpanel::JSON::XS->new->utf8;
         benchmark($base, $data, $table);
     }
     binmode STDOUT, ':encoding(UTF-8)';
-    print $table;
+    print
+        $table->title,
+        $table->body,
+        ;
 }
 
 exit 0;
