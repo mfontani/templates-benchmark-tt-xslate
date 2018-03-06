@@ -1,0 +1,9 @@
+[%~
+FOR v IN myloopvar;
+    IF v.foo <= 2 ~%]
+-------------------------
+[%-   FOR k IN v.keys.sort %]
+  - [% k | html %]: [% v.$k | html;
+      END %]
+[%  END -%]
+[% END -%]
