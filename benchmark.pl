@@ -89,8 +89,6 @@ exit 0;
 sub benchmark {
     my ($base, $data, $table) = @_;
 
-    print "Benchmarking $base...";
-
     my $tt_file = "$base.tt";
     croak "No such file: $TT_DIR/$tt_file" if !-f "$TT_DIR/$tt_file";
     my $tx_file = "$base.tx";
@@ -113,13 +111,12 @@ sub benchmark {
         (sprintf '%.2f', $tx_data->{per_sec}),
         (sprintf '%.2f%%', $tx_data->{per_sec} * 100 / $tt_data->{per_sec}),
     );
-    print "done\n";
 }
 
 sub dumb_benchmark {
     my ($base, $data) = @_;
 
-    say "Dumb-Benchmarking $base...";
+    warn "Dumb-Benchmarking $base...\n";
 
     my $tt_file = "$base.tt";
     croak "No such file: $TT_DIR/$tt_file" if !-f "$TT_DIR/$tt_file";
@@ -151,7 +148,6 @@ sub _benchmark_one {
 
     my $results_file = "$RESULTS_DIR/$RUNTIME.$what.$base.json";
     if (-f $results_file && !$FORCE) {
-        print " $results_file cached...";
         return $JSON->decode(path($results_file)->slurp_utf8)
     }
 
@@ -178,7 +174,7 @@ sub _benchmark_one {
         out     => $out,
     };
     path($results_file)->spew_utf8($JSON->encode($ret));
-    print " $results_file done...";
+    warn "$what $base $results_file done...\n";
     return $ret;
 }
 
