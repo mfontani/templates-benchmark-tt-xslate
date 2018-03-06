@@ -1,0 +1,3 @@
+[% FOR thing IN things -%]
+[% thing %]: [% INCLUDE "100_runtime_inclusion__${thing}.tt" %]
+[% END -%]

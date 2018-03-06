@@ -1,0 +1,3 @@
+: for $things -> $thing {
+<: $thing :>: <: runtime_include("100_runtime_inclusion__" ~ $thing ~ ".tx") :>
+: }
