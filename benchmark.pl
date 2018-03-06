@@ -108,11 +108,11 @@ sub sanity_check {
     my $tt_data = _benchmark_one('TT', $base, \&tt_exec, $TT, $tt_file, $data);
     my $tx_data = _benchmark_one('TX', $base, \&tx_exec, $TX, $tx_file, $data);
 
-    if ($tt_data->{out} ne $tx_data->{out}) {
-        warn "$base output differs!\nTT: \Q$tt_data->{out}\E\nTX: \Q$tx_data->{out}\E\n";
-        path("./tt.out")->spew_utf8($tt_data->{out});
-        path("./tx.out")->spew_utf8($tx_data->{out});
-        warn diff(\$tt_data->{out}, \$tx_data->{out});
+    if ($tt_data ne $tx_data) {
+        warn "$base output differs!\nTT: \Q$tt_data\E\nTX: \Q$tx_data\E\n";
+        path("./tt.out")->spew_utf8($tt_data);
+        path("./tx.out")->spew_utf8($tx_data);
+        warn diff(\$tt_data, \$tx_data);
         path("$RESULTS_DIR/$RUNTIME.$_.$base.json")->remove for qw<TT TX>;
         exit 1;
     }
