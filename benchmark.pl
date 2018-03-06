@@ -39,6 +39,8 @@ my ($DUMBBENCH) = grep { $_ eq '-D' }       @ARGV; @ARGV = grep { $_ ne '-D' } @
 my ($RUNTIME)   = grep { $_ =~ $RX_NUMBER } @ARGV; @ARGV = grep { $_ !~ $RX_NUMBER } @ARGV;
 $RUNTIME //= $DEFAULT_RUNTIME;
 
+my $JSON = Cpanel::JSON::XS->new->utf8;
+
 my $TT = Template->new(
     UNICODE      => 1,
     INCLUDE_PATH => [ $TT_DIR ],
@@ -56,14 +58,13 @@ my $TX = Text::Xslate->new(
     path        => [ $TX_DIR ],
     module      => [
         # Use similar variable methods to TT2
-        # 'Text::Xslate::Bridge::TT2Like',
+        'Text::Xslate::Bridge::TT2Like',
     ],
     function => {
         uri => \&URI::Escape::uri_escape_utf8,
     },
     cache_dir => './.tx_cache/',
 );
-my $JSON = Cpanel::JSON::XS->new->utf8;
 
 {
     my $table       = Text::Table->new('Function', 'TT done', 'TT seconds', 'TT/s', 'TX done', 'TX seconds', 'TX/s', 'TX vs TT +/-');
@@ -190,7 +191,7 @@ sub _benchmark_all {
         out     => $out,
     };
     path($results_file)->spew_utf8($JSON->encode($ret));
-    warn "$what $base $results_file done...\n";
+    warn "$what $base $results_file done $ret->{per_sec}/s...\n";
     return $ret;
 }
 
