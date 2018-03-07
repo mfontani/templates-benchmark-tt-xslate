@@ -1,3 +1,3 @@
 : for $urls -> $url {
-- <: $url | uri :>
+- <: $url | uri | lower :>
 : }

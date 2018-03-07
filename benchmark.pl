@@ -11,6 +11,7 @@ use Carp qw<croak>;
 use Template qw<>;
 use Text::Xslate qw<>;
 use URI::Escape qw<>;
+use URI::XSEscape qw<>;
 use Path::Tiny qw<path>;
 use Cpanel::JSON::XS qw<>;
 use File::Basename qw<basename>;
@@ -47,7 +48,8 @@ my $TT = Template->new(
     UNICODE      => 1,
     INCLUDE_PATH => [ $TT_DIR ],
     FILTERS      => {
-        uri => \&URI::Escape::uri_escape_utf8,
+        # URI::XSEscape speeds up TT's own version
+        uri => \&URI::XSEscape::uri_escape_utf8,
     },
     COMPILE_DIR  => "$FindBin::RealBin/.tt_cache/",
     COMPILE_EXT  => '.ttc2',
@@ -64,7 +66,8 @@ $TX = Text::Xslate->new(
         'Text::Xslate::Bridge::TT2Like',
     ],
     function => {
-        uri             => \&URI::Escape::uri_escape_utf8,
+        # Xslate's uri filter is a lot faster than this
+        # uri => \&URI::XSEscape::uri_escape_utf8,
         runtime_include => sub {
             return Text::Xslate::mark_raw( $TX->render("$_[0]", $TX->current_vars) );
         },
