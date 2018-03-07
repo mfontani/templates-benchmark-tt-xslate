@@ -91,9 +91,9 @@ $TX = Text::Xslate->new(
         if (scalar keys %wants_tests) {
             next if !exists $wants_tests{$base};
         }
-        my $data = $JSON->decode(path($file)->slurp_utf8);
-        benchmark($base, $data, $table) if !$DUMBBENCH;
-        dumb_benchmark($base, $data)    if $DUMBBENCH;
+        my $json = path($file)->slurp_utf8;
+        benchmark($base, $json, $table) if !$DUMBBENCH;
+        dumb_benchmark($base, $json)    if $DUMBBENCH;
     }
     if ($LIST) {
         say "@bases";
@@ -119,10 +119,10 @@ sub files_for {
 }
 
 sub sanity_check {
-    my ($base, $tt_file, $tx_file, $data) = @_;
+    my ($base, $tt_file, $tx_file, $json) = @_;
 
-    my $tt_data = _benchmark_one('TT', $base, \&tt_exec, $TT, $tt_file, $data);
-    my $tx_data = _benchmark_one('TX', $base, \&tx_exec, $TX, $tx_file, $data);
+    my $tt_data = _benchmark_one('TT', $base, \&tt_exec, $TT, $tt_file, $json);
+    my $tx_data = _benchmark_one('TX', $base, \&tx_exec, $TX, $tx_file, $json);
 
     if ($tt_data ne $tx_data) {
         warn "$base output differs!\nTT: \Q$tt_data\E\nTX: \Q$tx_data\E\n";
@@ -135,13 +135,13 @@ sub sanity_check {
 }
 
 sub benchmark {
-    my ($base, $data, $table) = @_;
+    my ($base, $json, $table) = @_;
 
     my ($tt_file, $tx_file) = files_for($base);
-    sanity_check($base, $tt_file, $tx_file, $data);
+    sanity_check($base, $tt_file, $tx_file, $json);
 
-    my $tt_data = _benchmark_all('TT', $base, \&tt_exec, $TT, $tt_file, $data);
-    my $tx_data = _benchmark_all('TX', $base, \&tx_exec, $TX, $tx_file, $data);
+    my $tt_data = _benchmark_all('TT', $base, \&tt_exec, $TT, $tt_file, $json);
+    my $tx_data = _benchmark_all('TX', $base, \&tx_exec, $TX, $tx_file, $json);
 
     my @cols = ("${RUNTIME}s $base");
     push @cols, ($tt_data->{iterate}, (sprintf '%.2f', $tt_data->{done})) if !$NARROW;
@@ -153,12 +153,12 @@ sub benchmark {
 }
 
 sub dumb_benchmark {
-    my ($base, $data) = @_;
+    my ($base, $json) = @_;
 
     warn "Dumb-Benchmarking $base...\n";
 
     my ($tt_file, $tx_file) = files_for($base);
-    sanity_check($base, $tt_file, $tx_file, $data);
+    sanity_check($base, $tt_file, $tx_file, $json);
 
     my $bench = Dumbbench->new(
         target_rel_precision => 0.002,
@@ -166,10 +166,10 @@ sub dumb_benchmark {
     );
     $bench->add_instances(
         Dumbbench::Instance::PerlSub->new(name => 'TT', code => sub {
-            tt_exec($TT, $tt_file, $data);
+            tt_exec($TT, $tt_file, $json);
         }),
         Dumbbench::Instance::PerlSub->new(name => 'TX', code => sub {
-            tx_exec($TX, $tx_file, $data);
+            tx_exec($TX, $tx_file, $json);
         }),
     );
     $bench->run;
@@ -177,13 +177,13 @@ sub dumb_benchmark {
 }
 
 sub _benchmark_one {
-    my ($what, $base, $subref, $instance, $file, $data) = @_;
+    my ($what, $base, $subref, $instance, $file, $json) = @_;
 
-    return $subref->($instance, $file, $data);
+    return $subref->($instance, $file, $json);
 }
 
 sub _benchmark_all {
-    my ($what, $base, $subref, $instance, $file, $data) = @_;
+    my ($what, $base, $subref, $instance, $file, $json) = @_;
 
     my $results_file = "$RESULTS_DIR/$RUNTIME.$what.$base.json";
     if (-f $results_file && !$FORCE) {
@@ -191,13 +191,13 @@ sub _benchmark_all {
     }
 
     my $t0 = [gettimeofday];
-    $subref->($instance, $file, $data) for 1..$DEFAULT_ITERATIONS;
+    $subref->($instance, $file, $json) for 1..$DEFAULT_ITERATIONS;
     my $done    = tv_interval($t0);
     my $iterate = int( $DEFAULT_ITERATIONS * $RUNTIME * 1.2 / $done );
     warn "$base: doing $iterate iterations for $what...\n" if $ENV{DEBUG};
     $t0 = [gettimeofday];
     my $out = '';
-    $out = $subref->($instance, $file, $data) for 1..$iterate;
+    $out = $subref->($instance, $file, $json) for 1..$iterate;
     $done = tv_interval($t0);
     warn sprintf "%s %s done %d iterations in %.5f, i.e. %.4f/s\n",
         $what, $base, $iterate, $done, $iterate/$done
@@ -216,18 +216,20 @@ sub _benchmark_all {
 }
 
 sub tt_exec {
-    my ($tt, $tt_file, $data) = @_;
+    my ($tt, $tt_file, $json) = @_;
 
     my $output = '';
+    my $data   = $JSON->decode($json);
     $tt->process($tt_file, $data, \$output)
         or die $tt->error;
     return $output;
 }
 
 sub tx_exec {
-    my ($tx, $tx_file, $data) = @_;
+    my ($tx, $tx_file, $json) = @_;
 
     my $output = '';
+    my $data   = $JSON->decode($json);
     $output = $tx->render($tx_file, $data);
     return $output;
 }
