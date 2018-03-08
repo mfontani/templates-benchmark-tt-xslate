@@ -1,0 +1,4 @@
+<div id=sidebar>
+    <h3>More from [% site_title | html %]</h3>
+    ...
+</div>

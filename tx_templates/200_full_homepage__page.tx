@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title><: $page_type :> • <: $site_title :></title>
+</head>
+<body>
+    : include "200_full_homepage__header.tx";
+    : block content -> {}
+    : include "200_full_homepage__sidebar.tx";
+    : include "200_full_homepage__footer.tx";
+</body>
+</html>

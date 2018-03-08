@@ -1,0 +1,18 @@
+[%-
+MACRO show_story(story) BLOCK %]
+<article>
+    <a href="[% story.url %]">
+        <div class=section>[% story.section | html %]</div>
+        <h3>[% story.headline %]</h3>
+        <img src="[% story.image.url | html %]" alt="[% story.image.alt | html %]">
+    </a>
+</article>[%
+END;
+WRAPPER "200_full_homepage__page.tt" page_type => 'Homepage' -%]
+<div id=body>[%
+    FOR story IN stories;
+        show_story(story);
+    END %]
+</div>[%
+END;
+-%]

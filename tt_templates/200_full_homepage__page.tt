@@ -1,0 +1,12 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>[% page_type | html %] • [% site_title | html %]</title>
+</head>
+<body>
+[% INCLUDE "200_full_homepage__header.tt" ~%]
+[% content %]
+[% INCLUDE "200_full_homepage__sidebar.tt" -%]
+[% INCLUDE "200_full_homepage__footer.tt" -%]
+</body>
+</html>

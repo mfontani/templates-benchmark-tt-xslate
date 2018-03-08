@@ -1,0 +1,17 @@
+: cascade "200_full_homepage__page.tx" { page_type => 'Homepage' }
+: macro show_story -> $story {
+<article>
+    <a href="<: $story.url | mark_raw :>">
+        <div class=section><: $story.section :></div>
+        <h3><: $story.headline | mark_raw :></h3>
+        <img src="<: $story.image.url :>" alt="<: $story.image.alt :>">
+    </a>
+</article>
+: }
+: override content -> {
+<div id=body>
+: for $stories -> $story {
+:   show_story($story);
+: }
+</div>
+: }
