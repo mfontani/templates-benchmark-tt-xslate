@@ -136,10 +136,14 @@ if ($CACHE) {
         say "@bases";
         exit 0;
     }
-    print
-        $table->title,
-        $table->body,
-        if !$DUMBBENCH;
+    if (!$DUMBBENCH) {
+        say "TT:  Template Toolkit with disk cache";
+        say "TX:  Text::Xslate     with disk cache and cache => 1 (default)";
+        say "TXC: Text::Xslate     with disk cache and cache => 2";
+        print
+            $table->title,
+            $table->body;
+    }
 }
 
 exit 0;
