@@ -158,10 +158,10 @@ sub files_for {
 sub sanity_check {
     my ($base, $tt_file, $tx_file, $json) = @_;
 
+    my $txc_data;
     my $tt_data = _benchmark_one('TT', $base, \&tt_exec, $TT, $tt_file, $json);
     my $tx_data = _benchmark_one('TX', $base, \&tx_exec, $TX, $tx_file, $json);
-
-    _benchmark_one('TXC', $base, \&tx_exec, $TXC, $tx_file, $json)
+    $txc_data   = _benchmark_one('TXC', $base, \&tx_exec, $TXC, $tx_file, $json)
         if $CACHE;
 
     if ($tt_data ne $tx_data) {
@@ -169,7 +169,15 @@ sub sanity_check {
         path("./tt.out")->spew_utf8($tt_data);
         path("./tx.out")->spew_utf8($tx_data);
         warn diff(\$tt_data, \$tx_data);
-        path("$RESULTS_DIR/$RUNTIME.$_.$base.json")->remove for qw<TT TX>;
+        path("$RESULTS_DIR/$RUNTIME.$_.$base.json")->remove for qw<TT TX TXC>;
+        exit 1;
+    }
+    if ($CACHE && $tx_data ne $txc_data) {
+        warn "$base output differs!\nTX: \Q$tx_data\E\nTXC: \Q$txc_data\E\n";
+        path("./tx.out")->spew_utf8($tx_data);
+        path("./ttc.out")->spew_utf8($txc_data);
+        warn diff(\$tx_data, \$txc_data);
+        path("$RESULTS_DIR/$RUNTIME.$_.$base.json")->remove for qw<TT TX TXC>;
         exit 1;
     }
 }
