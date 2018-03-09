@@ -29,7 +29,9 @@ const my $DEFAULT_RUNTIME    => 1; # seconds
 const my $TT_DIR             => './tt_templates';
 const my $TX_DIR             => './tx_templates';
 const my $TT_CACHE_DIR       => './.tt_cache';
+const my $TT_SHM_CACHE_DIR   => '/dev/shm/tt_cache';
 const my $TX_CACHE_DIR       => './.tx_cache';
+const my $TX_SHM_CACHE_DIR   => '/dev/shm/tx_cache';
 const my $RESULTS_DIR        => './results';
 const my $RX_NUMBER          => qr!\A\d+(?:[.]\d+)?\z!xms;
 
@@ -57,6 +59,17 @@ my $TT = Template->new(
     COMPILE_DIR  => "$FindBin::RealBin/$TT_CACHE_DIR",
     COMPILE_EXT  => '.ttc2',
 );
+my $TTSHM;
+$TTSHM = Template->new(
+    UNICODE      => 1,
+    INCLUDE_PATH => [ $TT_DIR ],
+    FILTERS      => {
+        # URI::XSEscape speeds up TT's own version
+        uri => \&URI::XSEscape::uri_escape_utf8,
+    },
+    COMPILE_DIR  => $TT_SHM_CACHE_DIR,
+    COMPILE_EXT  => '.ttc2',
+) if -d '/dev/shm';
 
 my $TX; # to allow the functions to reference the templating system
 $TX = Text::Xslate->new(
@@ -78,6 +91,28 @@ $TX = Text::Xslate->new(
     },
     cache_dir => $TX_CACHE_DIR,
 );
+
+my $TXSHM;
+$TXSHM = Text::Xslate->new(
+    verbose     => 1,          # warn about non-trivial stuff
+    type        => 'html',
+    input_layer => ':utf8',    # No need for :set bomb
+    path        => [ $TX_DIR ],
+    cache       => 1,          # the default cache level (check freshness every time)
+    module      => [
+        # Use similar variable methods to TT2
+        'Text::Xslate::Bridge::TT2Like',
+    ],
+    function => {
+        # Xslate's uri filter is a lot faster than this
+        # uri => \&URI::XSEscape::uri_escape_utf8,
+        runtime_include => sub {
+            return Text::Xslate::mark_raw( $TX->render("$_[0]", $TX->current_vars) );
+        },
+    },
+    cache_dir => $TX_SHM_CACHE_DIR,
+) if -d '/dev/shm';
+
 
 my $TXC; # to allow the functions to reference the templating system
 $TXC = Text::Xslate->new(
@@ -111,10 +146,21 @@ if ($CACHE) {
 }
 
 {
-    my @cols = $WIDE ?  ('Function', 'TT done', 'TT seconds', 'TT/s', 'TX done', 'TX seconds', 'TX/s', "±TX/TT\n&num")
-             :          ('Function',                          'TT/s',                          'TX/s', "±TX/TT\n&num");
-    push @cols, 'TXC/s', pop @cols, "±TXC/TT\n&num", "±TXC/TX\n&num"
-        if $CACHE;
+    my @cols = ('Function');
+    push @cols, ('TT done', 'TT seconds') if $WIDE;
+    push @cols, 'TT/s';
+    push @cols, ('TTSHM done', 'TTSHM seconds') if $TTSHM && $WIDE;
+    push @cols, 'TTSHM/s' if $TTSHM;
+    push @cols, ('TX done', 'TX seconds') if $WIDE;
+    push @cols, 'TX/s';
+    push @cols, ('TXSHM done', 'TXSHM seconds') if $TXSHM && $WIDE;
+    push @cols, 'TXSHM/s' if $TXSHM;
+    push @cols, 'TXC/s'   if $CACHE;
+    push @cols, "±TX/TT\n&num";
+    push @cols, "±TTSHM/TT\n&num" if $TTSHM;
+    push @cols, "±TXSHM/TT\n&num" if $TXSHM;
+    push @cols, "±TXSHM/TX\n&num" if $TXSHM;
+    push @cols, ("±TXC/TT\n&num", "±TXC/TX\n&num") if $CACHE;
     my $table       = Text::Table->new(@cols);
     my @jsons       = reverse glob './data/*.json';
     my %wants_tests = map { $_ => 1 } @ARGV;
@@ -169,6 +215,9 @@ sub sanity_check {
     $txc_data   = _benchmark_one('TXC', $base, \&tx_exec, $TXC, $tx_file, $json)
         if $CACHE;
 
+    _benchmark_one('TTSHM', $base, \&tt_exec, $TTSHM, $tt_file, $json) if $TTSHM;
+    _benchmark_one('TXSHM', $base, \&tx_exec, $TXSHM, $tx_file, $json) if $TXSHM;
+
     if ($tt_data ne $tx_data) {
         warn "$base output differs!\nTT: \Q$tt_data\E\nTX: \Q$tx_data\E\n";
         path("./tt.out")->spew_utf8($tt_data);
@@ -193,22 +242,33 @@ sub benchmark {
     my ($tt_file, $tx_file) = files_for($base);
     sanity_check($base, $tt_file, $tx_file, $json);
 
-    my $txc_data;
-    my $tt_data = _benchmark_all('TT',  $base, \&tt_exec, $TT,  $tt_file, $json);
-    my $tx_data = _benchmark_all('TX',  $base, \&tx_exec, $TX,  $tx_file, $json);
-    $txc_data   = _benchmark_all('TXC', $base, \&tx_exec, $TXC, $tx_file, $json)
+    my ($ttshm_data, $txshm_data, $txc_data);
+    my $tt_data = _benchmark_all('TT',    $base, \&tt_exec, $TT,    $tt_file, $json);
+    my $tx_data = _benchmark_all('TX',    $base, \&tx_exec, $TX,    $tx_file, $json);
+    $ttshm_data = _benchmark_all('TTSHM', $base, \&tt_exec, $TTSHM, $tt_file, $json)
+        if $TTSHM;
+    $txshm_data = _benchmark_all('TXSHM', $base, \&tx_exec, $TXSHM, $tx_file, $json)
+        if $TXSHM;
+    $txc_data   = _benchmark_all('TXC',   $base, \&tx_exec, $TXC,   $tx_file, $json)
         if $CACHE;
 
     my @cols = ("${RUNTIME}s $base");
     push @cols, ($tt_data->{iterate}, (sprintf '%.2f', $tt_data->{done})) if $WIDE;
     push @cols, sprintf '%.2f', $tt_data->{per_sec};
+    push @cols, ($ttshm_data->{iterate}, (sprintf '%.2f', $ttshm_data->{done})) if $TTSHM && $WIDE;
+    push @cols, sprintf '%.2f', $ttshm_data->{per_sec} if $TTSHM;
     push @cols, ($tx_data->{iterate}, (sprintf '%.2f', $tx_data->{done})) if $WIDE;
     push @cols, sprintf '%.2f', $tx_data->{per_sec};
+    push @cols, ($txshm_data->{iterate}, (sprintf '%.2f', $txshm_data->{done})) if $TXSHM && $WIDE;
+    push @cols, sprintf '%.2f', $txshm_data->{per_sec} if $TXSHM;
     push @cols, sprintf '%.2f', $txc_data->{per_sec} if $CACHE;
-    push @cols, sprintf '%+.2f%%', $tx_data->{per_sec}  * 100 / $tt_data->{per_sec};
-    push @cols, sprintf '%+.2f%%', $txc_data->{per_sec} * 100 / $tt_data->{per_sec}
+    push @cols, sprintf '%+.2f%%', - 100 + $tx_data->{per_sec}  * 100 / $tt_data->{per_sec};
+    push @cols, sprintf '%+.2f%%', - 100 + $ttshm_data->{per_sec}  * 100 / $tt_data->{per_sec} if $TTSHM;
+    push @cols, sprintf '%+.2f%%', - 100 + $txshm_data->{per_sec}  * 100 / $tt_data->{per_sec} if $TXSHM;
+    push @cols, sprintf '%+.2f%%', - 100 + $txshm_data->{per_sec}  * 100 / $tx_data->{per_sec} if $TXSHM;
+    push @cols, sprintf '%+.2f%%', - 100 + $txc_data->{per_sec} * 100 / $tt_data->{per_sec}
         if $CACHE;
-    push @cols, sprintf '%+.2f%%', $txc_data->{per_sec} * 100 / $tx_data->{per_sec}
+    push @cols, sprintf '%+.2f%%', - 100 + $txc_data->{per_sec} * 100 / $tx_data->{per_sec}
         if $CACHE;
     $table->add(@cols);
 }
