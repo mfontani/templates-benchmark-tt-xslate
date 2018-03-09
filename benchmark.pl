@@ -262,13 +262,13 @@ sub benchmark {
     push @cols, ($txshm_data->{iterate}, (sprintf '%.2f', $txshm_data->{done})) if $TXSHM && $WIDE;
     push @cols, sprintf '%.2f', $txshm_data->{per_sec} if $TXSHM;
     push @cols, sprintf '%.2f', $txc_data->{per_sec} if $CACHE;
-    push @cols, sprintf '%+.2f%%', - 100 + $tx_data->{per_sec}  * 100 / $tt_data->{per_sec};
-    push @cols, sprintf '%+.2f%%', - 100 + $ttshm_data->{per_sec}  * 100 / $tt_data->{per_sec} if $TTSHM;
-    push @cols, sprintf '%+.2f%%', - 100 + $txshm_data->{per_sec}  * 100 / $tt_data->{per_sec} if $TXSHM;
-    push @cols, sprintf '%+.2f%%', - 100 + $txshm_data->{per_sec}  * 100 / $tx_data->{per_sec} if $TXSHM;
-    push @cols, sprintf '%+.2f%%', - 100 + $txc_data->{per_sec} * 100 / $tt_data->{per_sec}
+    push @cols, sprintf '%+.2f%%', - 100 + $tx_data->{per_sec}    * 100 / $tt_data->{per_sec};
+    push @cols, sprintf '%+.2f%%', - 100 + $ttshm_data->{per_sec} * 100 / $tt_data->{per_sec} if $TTSHM;
+    push @cols, sprintf '%+.2f%%', - 100 + $txshm_data->{per_sec} * 100 / $tt_data->{per_sec} if $TXSHM;
+    push @cols, sprintf '%+.2f%%', - 100 + $txshm_data->{per_sec} * 100 / $tx_data->{per_sec} if $TXSHM;
+    push @cols, sprintf '%+.2f%%', - 100 + $txc_data->{per_sec}   * 100 / $tt_data->{per_sec}
         if $CACHE;
-    push @cols, sprintf '%+.2f%%', - 100 + $txc_data->{per_sec} * 100 / $tx_data->{per_sec}
+    push @cols, sprintf '%+.2f%%', - 100 + $txc_data->{per_sec}   * 100 / $tx_data->{per_sec}
         if $CACHE;
     $table->add(@cols);
 }
