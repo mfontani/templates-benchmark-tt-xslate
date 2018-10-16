@@ -70,6 +70,9 @@ Options:
             Performs an additional set of benchmarks using Text::Xslate
             with "cache => 2" (cleans up the cache directory before the run).
             Also works with -D.
+    -S      Also benchmark "SHM" variations.
+            That is, benchmark TT and TX where the cache directory is kept
+            on a subdirectory of /dev/shm.
 
 EOF
     exit 0;
@@ -81,6 +84,7 @@ my ($FORCE)     = grep { $_ eq '-f' }       @ARGV; @ARGV = grep { $_ ne '-f' } @
 my ($CACHE)     = grep { $_ eq '-C' }       @ARGV; @ARGV = grep { $_ ne '-C' } @ARGV;
 my ($DUMBBENCH) = grep { $_ eq '-D' }       @ARGV; @ARGV = grep { $_ ne '-D' } @ARGV;
 my ($WIDE)      = grep { $_ eq '-w' }       @ARGV; @ARGV = grep { $_ ne '-w' } @ARGV;
+my ($USE_SHM)   = grep { $_ eq '-S' }       @ARGV; @ARGV = grep { $_ ne '-S' } @ARGV;
 my ($RUNTIME)   = grep { $_ =~ $RX_NUMBER } @ARGV; @ARGV = grep { $_ !~ $RX_NUMBER } @ARGV;
 $RUNTIME //= $DEFAULT_RUNTIME;
 
@@ -106,7 +110,7 @@ $TTSHM = Template->new(
     },
     COMPILE_DIR  => $TT_SHM_CACHE_DIR,
     COMPILE_EXT  => '.ttc2',
-) if -d '/dev/shm';
+) if $USE_SHM && -d '/dev/shm';
 
 my $TX; # to allow the functions to reference the templating system
 $TX = Text::Xslate->new(
@@ -148,7 +152,7 @@ $TXSHM = Text::Xslate->new(
         },
     },
     cache_dir => $TX_SHM_CACHE_DIR,
-) if -d '/dev/shm';
+) if $USE_SHM && -d '/dev/shm';
 
 
 my $TXC; # to allow the functions to reference the templating system
