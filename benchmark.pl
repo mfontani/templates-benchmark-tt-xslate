@@ -202,6 +202,7 @@ if ($CACHE) {
     my @jsons       = reverse glob './data/*.json';
     my %wants_tests = map { $_ => 1 } @ARGV;
     my @bases       = ();
+    my @rows        = ();
     for my $file (@jsons) {
         my $base = basename($file) =~ s![.]json\z!!xmsgr;
         if ($LIST) {
@@ -212,8 +213,8 @@ if ($CACHE) {
             next if !exists $wants_tests{$base};
         }
         my $json = path($file)->slurp_utf8;
-        benchmark($base, $json, $table) if !$DUMBBENCH;
-        dumb_benchmark($base, $json)    if $DUMBBENCH;
+        push @rows, benchmark($base, $json) if !$DUMBBENCH;
+        dumb_benchmark($base, $json)        if  $DUMBBENCH;
     }
     if ($LIST) {
         say "@bases";
@@ -224,6 +225,7 @@ if ($CACHE) {
         say "TX:  Text::Xslate     with disk cache and cache => 1 (default)";
         say "TXC: Text::Xslate     with disk cache and cache => 2"
             if $CACHE;
+        $table->add(@$_) for @rows;
         print
             $table->title,
             $table->body;
@@ -274,7 +276,7 @@ sub sanity_check {
 }
 
 sub benchmark {
-    my ($base, $json, $table) = @_;
+    my ($base, $json) = @_;
 
     my ($tt_file, $tx_file) = files_for($base);
     sanity_check($base, $tt_file, $tx_file, $json);
@@ -307,7 +309,7 @@ sub benchmark {
         if $CACHE;
     push @cols, sprintf '%+.2f%%', - 100 + $txc_data->{per_sec}   * 100 / $tx_data->{per_sec}
         if $CACHE;
-    $table->add(@cols);
+    return [ @cols ];
 }
 
 sub dumb_benchmark {
