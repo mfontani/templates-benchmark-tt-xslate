@@ -5,5 +5,6 @@ requires 'Text::Table' => 0;
 requires 'Text::Diff' => 0;
 requires 'Dumbbench' => 0;
 requires 'Template' => 0;
+requires 'Statistics::CaseResampling' => 0;
 requires 'Text::Xslate' => 0;
 requires 'Text::Xslate::Bridge::TT2Like' => 0;
