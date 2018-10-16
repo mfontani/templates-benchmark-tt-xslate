@@ -225,6 +225,31 @@ if ($CACHE) {
         exit 0;
     }
     if (!$DUMBBENCH) {
+        # Find highest /s for each col for each row, and mark it as such
+        for my $i (0..$#rows) {
+            my @sorted = reverse
+                         sort { $a <=> $b }
+                         map  { $rows[$i][$_] }
+                         grep { $rows[$i][$_] =~ m!\A\d+[.]\d\d\z!xms }
+                         # Don't look at "done" or "seconds" cols
+                         # grep { $cols[$_] !~ m!(?: done | seconds )!xms }
+                         grep { $cols[$_] =~ m!/s!xms }
+                         0..$#{ $rows[$i] };
+            for (@{ $rows[$i] }) {
+                if ($_ eq $sorted[0]) {
+                    $_ = "\e[32m$_\e[0m";
+                    next;
+                }
+                if ($_ eq $sorted[-1]) {
+                    $_ = "\e[31m$_\e[0m";
+                    next;
+                }
+                if ($_ eq $sorted[1]) {
+                    $_ = "\e[33m$_\e[0m";
+                    next;
+                }
+            }
+        }
         say "TT:  Template Toolkit with disk cache";
         say "TX:  Text::Xslate     with disk cache and cache => 1 (default)";
         say "TXC: Text::Xslate     with disk cache and cache => 2"
