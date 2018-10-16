@@ -38,11 +38,48 @@ const my $RX_NUMBER          => qr!\A\d+(?:[.]\d+)?\z!xms;
 mkdir $RESULTS_DIR
     if !-d $RESULTS_DIR;
 
+if (scalar grep { $_ eq '--help' || $_ eq '-h' || $_ eq '-?' } @ARGV) {
+    say <<"EOF";
+Usage: benchmark.pl [OPTIONS] [list] [RUNTIME]
+
+Benchmarks time taken to output TT (Template Toolkit) vs XS (Xslate) templates,
+each given the same data in the stash, and each checked for equivalence of
+output.
+
+Performs a benchmark run for about RUNTIME (default $DEFAULT_RUNTIME) seconds,
+but see -D.
+
+By default re-uses previous runs' results, but see -f.
+
+You can also use the "list" parameter, if you'd like to see a list of the
+basenames of the tests will be performed.  Each basename will have a
+corresponding file in the data/, tt_templates/ and tx_templates/ directories.
+
+Options:
+
+    -f      Force.
+            Clean up the result caches before running each benchmark.
+    -D      Dumbbench.
+            Instead of performing iterations up to RUNTIME seconds, use
+            Dumbbench with a default of $DEFAULT_ITERATIONS iterations instead.
+            Does not output a report, and does not cache the results.
+    -w      Wide.
+            Also show how many iterations were done, and in how many seconds.
+            Useless with -D.
+    -C      Also benchmark "TXC".
+            Performs an additional set of benchmarks using Text::Xslate
+            with "cache => 2" (cleans up the cache directory before the run).
+            Also works with -D.
+
+EOF
+    exit 0;
+}
+
 # Global Options
+my ($LIST)      = grep { $_ eq 'list' }     @ARGV; @ARGV = grep { $_ ne 'list' } @ARGV;
 my ($FORCE)     = grep { $_ eq '-f' }       @ARGV; @ARGV = grep { $_ ne '-f' } @ARGV;
 my ($CACHE)     = grep { $_ eq '-C' }       @ARGV; @ARGV = grep { $_ ne '-C' } @ARGV;
 my ($DUMBBENCH) = grep { $_ eq '-D' }       @ARGV; @ARGV = grep { $_ ne '-D' } @ARGV;
-my ($LIST)      = grep { $_ eq 'list' }     @ARGV; @ARGV = grep { $_ ne 'list' } @ARGV;
 my ($WIDE)      = grep { $_ eq '-w' }       @ARGV; @ARGV = grep { $_ ne '-w' } @ARGV;
 my ($RUNTIME)   = grep { $_ =~ $RX_NUMBER } @ARGV; @ARGV = grep { $_ !~ $RX_NUMBER } @ARGV;
 $RUNTIME //= $DEFAULT_RUNTIME;
