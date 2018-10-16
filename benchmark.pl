@@ -288,16 +288,16 @@ sub sanity_check {
 
     if ($tt_data ne $tx_data) {
         warn "$base output differs!\nTT: \Q$tt_data\E\nTX: \Q$tx_data\E\n";
-        path("./tt.out")->spew_utf8($tt_data);
-        path("./tx.out")->spew_utf8($tx_data);
+        path("./tt.out")->spew($tt_data);
+        path("./tx.out")->spew($tx_data);
         warn diff(\$tt_data, \$tx_data);
         path("$RESULTS_DIR/$RUNTIME.$_.$base.json")->remove for qw<TT TX TXC>;
         exit 1;
     }
     if ($CACHE && $tx_data ne $txc_data) {
         warn "$base output differs!\nTX: \Q$tx_data\E\nTXC: \Q$txc_data\E\n";
-        path("./tx.out")->spew_utf8($tx_data);
-        path("./ttc.out")->spew_utf8($txc_data);
+        path("./tx.out")->spew($tx_data);
+        path("./ttc.out")->spew($txc_data);
         warn diff(\$tx_data, \$txc_data);
         path("$RESULTS_DIR/$RUNTIME.$_.$base.json")->remove for qw<TT TX TXC>;
         exit 1;
@@ -381,7 +381,7 @@ sub _benchmark_all {
 
     my $results_file = "$RESULTS_DIR/$RUNTIME.$what.$base.json";
     if (-f $results_file && !$FORCE) {
-        return $JSON->decode(path($results_file)->slurp_utf8)
+        return $JSON->decode(path($results_file)->slurp)
     }
 
     my $t0 = [gettimeofday];
@@ -404,7 +404,7 @@ sub _benchmark_all {
         per_sec => $iterate / $done,
         out     => $out,
     };
-    path($results_file)->spew_utf8($JSON->encode($ret));
+    path($results_file)->spew($JSON->encode($ret));
     warn "$what $base $results_file done $ret->{per_sec}/s...\n";
     return $ret;
 }
