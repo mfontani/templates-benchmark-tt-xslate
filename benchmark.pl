@@ -10,7 +10,6 @@ use Const::Fast qw<const>;
 use Carp qw<croak>;
 use Template qw<>;
 use Text::Xslate qw<>;
-use URI::Escape qw<>;
 use URI::XSEscape qw<>;
 use Path::Tiny qw<path>;
 use Cpanel::JSON::XS qw<>;
