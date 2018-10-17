@@ -24,6 +24,7 @@ use Dumbbench qw<>;
 $|++;
 binmode STDOUT, ':encoding(UTF-8)';
 
+const my $CACHE_ITERATIONS   => 100;
 const my $DEFAULT_ITERATIONS => 500;
 const my $DEFAULT_RUNTIME    => 1; # seconds
 const my $TT_DIR             => './tt_templates';
@@ -48,7 +49,8 @@ each given the same data in the stash, and each checked for equivalence of
 output.
 
 Performs a benchmark run for about RUNTIME (default $DEFAULT_RUNTIME) seconds,
-but see -D.
+but first performing $CACHE_ITERATIONS iterations to find how many actual
+iterations to perform, but see -D.
 
 By default re-uses previous runs' results, but see -f.
 
@@ -394,9 +396,9 @@ sub _benchmark_all {
     }
 
     my $t0 = [gettimeofday];
-    $subref->($instance, $file, $json) for 1..$DEFAULT_ITERATIONS;
+    $subref->($instance, $file, $json) for 1..$CACHE_ITERATIONS;
     my $done    = tv_interval($t0);
-    my $iterate = int( $DEFAULT_ITERATIONS * $RUNTIME * 1.2 / $done );
+    my $iterate = int( $CACHE_ITERATIONS * $RUNTIME * 1.2 / $done );
     warn "$base: doing $iterate iterations for $what...\n" if $ENV{DEBUG};
     $t0 = [gettimeofday];
     my $out = '';
