@@ -23,7 +23,7 @@ tests := $(patsubst data/%.json,%, $(data_files))
 
 # The output goes in results/DURATION.OUTPUT_TYPE.TEST_NAME.json
 # These are the "OUTPUT_TYPE":
-output_types := TT TX TXC TTSHM TXSHM
+output_types := TT TX TXC
 
 # 05: Test each for a max of 0.5 seconds
 results_files_05 := $(foreach output_type,$(output_types),$(foreach test,$(tests),results/0.5.$(output_type).$(test).json))
