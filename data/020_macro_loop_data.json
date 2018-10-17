@@ -1,11 +1,11 @@
 {"base_domain":"https://www.example.com","imgs":[
     {"url":"/1234/5678/foo.jpg","alt":"foo"},
     {"url":"/1234/5678/bar.jpg"},
-    {"url":"/1234/5678/foo.jpg","alt":"foo"},
+    {"url":"/1234/5678/foo.jpg","alt":"foo & bar"},
     {"url":"/1234/5678/bar.jpg"},
     {"url":"/1234/5678/foo.jpg","alt":"foo"},
     {"url":"/1234/5678/bar.jpg"},
-    {"url":"/1234/5678/foo.jpg","alt":"foo"},
+    {"url":"/1234/5678/foo.jpg","alt":"foo < baz"},
     {"url":"/1234/5678/bar.jpg"},
     {"url":"/1234/5678/foo.jpg","alt":"foo"},
     {"url":"/1234/5678/bar.jpg"}
