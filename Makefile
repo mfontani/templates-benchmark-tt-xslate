@@ -51,15 +51,15 @@ dumb:
 
 .SECONDEXPANSION:
 $(results_05_pat): data/%.json tt_templates/%.tt tx_templates/%.tx $$(wildcard tt_templates/%_*.tt) $$(wildcard tx_templates/%_*.tx)
-	carton exec perl benchmark.pl -w -f 0.5 -C $(patsubst TX.%,%,$(patsubst TT.%,%,$(patsubst TXC.%,%,$(patsubst TXSHM.%,%,$(patsubst TTSHM.%,%,$(patsubst results/0.5.%.json,%, $@))))))
+	carton exec perl benchmark.pl 0.5 -w -C $(patsubst TX.%,%,$(patsubst TT.%,%,$(patsubst TXC.%,%,$(patsubst TXSHM.%,%,$(patsubst TTSHM.%,%,$(patsubst results/0.5.%.json,%, $@))))))
 
 .SECONDEXPANSION:
 $(results_1_pat): data/%.json tt_templates/%.tt tx_templates/%.tx $$(wildcard tt_templates/%_*.tt) $$(wildcard tx_templates/%_*.tx)
-	carton exec perl benchmark.pl -w -f 1 -C $(patsubst TX.%,%,$(patsubst TT.%,%,$(patsubst TXC.%,%,$(patsubst TXSHM.%,%,$(patsubst TTSHM.%,%,$(patsubst results/1.%.json,%, $@))))))
+	carton exec perl benchmark.pl 1 -w -C $(patsubst TX.%,%,$(patsubst TT.%,%,$(patsubst TXC.%,%,$(patsubst TXSHM.%,%,$(patsubst TTSHM.%,%,$(patsubst results/1.%.json,%, $@))))))
 
 .SECONDEXPANSION:
 $(results_5_pat): data/%.json tt_templates/%.tt tx_templates/%.tx $$(wildcard tt_templates/%_*.tt) $$(wildcard tx_templates/%_*.tx)
-	carton exec perl benchmark.pl -w -f 5 -C $(patsubst TX.%,%,$(patsubst TT.%,%,$(patsubst TXC.%,%,$(patsubst TXSHM.%,%,$(patsubst TTSHM.%,%,$(patsubst results/5.%.json,%, $@))))))
+	carton exec perl benchmark.pl 5 -w -C $(patsubst TX.%,%,$(patsubst TT.%,%,$(patsubst TXC.%,%,$(patsubst TXSHM.%,%,$(patsubst TTSHM.%,%,$(patsubst results/5.%.json,%, $@))))))
 
 .PHONY: benchmark-0.5
 benchmark-0.5: $(results_files_05)
