@@ -366,6 +366,16 @@ sub dumb_benchmark {
             tx_exec($TXC, $tx_file, $json);
         }),
     ) if $CACHE;
+    $bench->add_instances(
+        Dumbbench::Instance::PerlSub->new(name => 'TTSHM', code => sub {
+            tt_exec($TTSHM, $tt_file, $json);
+        }),
+    ) if $TTSHM;
+    $bench->add_instances(
+        Dumbbench::Instance::PerlSub->new(name => 'TXSHM', code => sub {
+            tx_exec($TXSHM, $tx_file, $json);
+        }),
+    ) if $TXSHM;
     $bench->run;
     $bench->report(0, { float => 1 });
 }
