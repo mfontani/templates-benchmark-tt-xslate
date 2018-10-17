@@ -9,5 +9,6 @@ requires 'File::Basename' => 0;
 requires 'Time::HiRes' => 0;
 requires 'Text::Table' => 0;
 requires 'Text::Diff' => 0;
+requires 'File::Path' => 0;
 requires 'Dumbbench' => 0;
 requires 'Text::Xslate::Bridge::TT2Like' => 0;

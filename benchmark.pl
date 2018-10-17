@@ -18,6 +18,7 @@ use Time::HiRes qw<gettimeofday tv_interval>;
 use FindBin qw<>;
 use Text::Table qw<>;
 use Text::Diff qw<diff>;
+use File::Path qw<>;
 use Dumbbench qw<>;
 
 $|++;
@@ -176,18 +177,15 @@ $TXC = Text::Xslate->new(
     cache_dir => $TXC_CACHE_DIR,
 );
 
-# Always reset cache directory before each run, to ensure TXC cache => 2
-# setting will not wreak havoc with updated / uncached templates; it shouldn't,
-# as TX is done first, so the cache for any updated template should be already
-# updated by the time TXC happens, but better safe than sorry.
-if ($CACHE) {
-    # warn "Purging $TX_CACHE_DIR...\n";
-    require File::Path;
-    # warn "Removed ", File::Path::rmtree($TX_CACHE_DIR), " files from TX cache.\n";
-    File::Path::rmtree($TX_CACHE_DIR);
-}
-
 {
+    # Always reset cache directories before each run
+    require File::Path;
+    File::Path::rmtree($_) for (
+        $TT_CACHE_DIR, $TT_SHM_CACHE_DIR,
+        $TX_CACHE_DIR, $TX_SHM_CACHE_DIR,
+        $TXC_CACHE_DIR,
+    );
+
     my @cols = ('Function');
     push @cols, ('TT done', 'TT seconds') if $WIDE;
     push @cols, 'TT/s';
