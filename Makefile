@@ -25,6 +25,9 @@ all: $(results_files_05) $(results_files_1) $(results_files_5)
 report: benchmark-0.5 benchmark-1 benchmark-5
 report-w: benchmark-0.5w benchmark-1w benchmark-5w
 
+clean:
+	rm -f results/*
+
 .PHONY: dumb
 dumb:
 	carton exec perl benchmark.pl -D -C -S
