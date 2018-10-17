@@ -181,9 +181,10 @@ $TXC = Text::Xslate->new(
 # as TX is done first, so the cache for any updated template should be already
 # updated by the time TXC happens, but better safe than sorry.
 if ($CACHE) {
-    warn "Purging $TX_CACHE_DIR...\n";
+    # warn "Purging $TX_CACHE_DIR...\n";
     require File::Path;
-    warn "Removed ", File::Path::rmtree($TX_CACHE_DIR), " files from TX cache.\n";
+    # warn "Removed ", File::Path::rmtree($TX_CACHE_DIR), " files from TX cache.\n";
+    File::Path::rmtree($TX_CACHE_DIR);
 }
 
 {
@@ -250,10 +251,10 @@ if ($CACHE) {
                 }
             }
         }
-        say "TT:  Template Toolkit with disk cache";
-        say "TX:  Text::Xslate     with disk cache and cache => 1 (default)";
-        say "TXC: Text::Xslate     with disk cache and cache => 2"
-            if $CACHE;
+        # say "TT:  Template Toolkit with disk cache";
+        # say "TX:  Text::Xslate     with disk cache and cache => 1 (default)";
+        # say "TXC: Text::Xslate     with disk cache and cache => 2"
+        #     if $CACHE;
         $table->add(@$_) for @rows;
         print
             $table->title,
@@ -415,7 +416,7 @@ sub _benchmark_all {
         out     => $out,
     };
     path($results_file)->spew($JSON->encode($ret));
-    warn "$what $base $results_file done $ret->{per_sec}/s...\n";
+    # warn "$what $base $results_file done $ret->{per_sec}/s...\n";
     return $ret;
 }
 
