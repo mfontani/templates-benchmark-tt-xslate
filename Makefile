@@ -1,3 +1,20 @@
+# Allow running "make report 200_full_homepage" to restrict the report to just
+# one specific test.
+# See also:
+# https://stackoverflow.com/questions/2214575/passing-arguments-to-make-run/14061796#14061796
+ifeq (report,$(firstword $(MAKECMDGOALS)))
+  # use the rest as arguments
+  ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  # ...and turn them into do-nothing targets
+  $(eval $(ARGS):;@:)
+endif
+ifeq (report-w,$(firstword $(MAKECMDGOALS)))
+  # use the rest as arguments
+  ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  # ...and turn them into do-nothing targets
+  $(eval $(ARGS):;@:)
+endif
+
 # Data files are in data/%.json
 data_files := $(wildcard data/*)
 
@@ -46,24 +63,24 @@ $(results_5_pat): data/%.json tt_templates/%.tt tx_templates/%.tx $$(wildcard tt
 
 .PHONY: benchmark-0.5
 benchmark-0.5: $(results_files_05)
-	carton exec perl benchmark.pl 0.5 -C -S
+	carton exec perl benchmark.pl 0.5 -C -S $(ARGS)
 
 .PHONY: benchmark-0.5w
 benchmark-0.5w: $(results_files_05)
-	carton exec perl benchmark.pl 0.5 -C -S -w
+	carton exec perl benchmark.pl 0.5 -C -S -w $(ARGS)
 
 .PHONY: benchmark-1
 benchmark-1: $(results_files_1)
-	carton exec perl benchmark.pl 1 -C -S
+	carton exec perl benchmark.pl 1 -C -S $(ARGS)
 
 .PHONY: benchmark-1w
 benchmark-1w: $(results_files_1)
-	carton exec perl benchmark.pl 1 -C -S -w
+	carton exec perl benchmark.pl 1 -C -S -w $(ARGS)
 
 .PHONY: benchmark-5
 benchmark-5: $(results_files_5)
-	carton exec perl benchmark.pl 5 -C -S
+	carton exec perl benchmark.pl 5 -C -S $(ARGS)
 
 .PHONY: benchmark-5w
 benchmark-5w: $(results_files_5)
-	carton exec perl benchmark.pl 5 -C -S -w
+	carton exec perl benchmark.pl 5 -C -S -w $(ARGS)
