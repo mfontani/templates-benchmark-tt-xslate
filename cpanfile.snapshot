@@ -60,10 +60,10 @@ DISTRIBUTIONS
       perl 5.008
       strict 0
       warnings 0
-  Cpanel-JSON-XS-4.02
-    pathname: R/RU/RURBAN/Cpanel-JSON-XS-4.02.tar.gz
+  Cpanel-JSON-XS-4.06
+    pathname: R/RU/RURBAN/Cpanel-JSON-XS-4.06.tar.gz
     provides:
-      Cpanel::JSON::XS 4.02
+      Cpanel::JSON::XS 4.06
       Cpanel::JSON::XS::Type undef
     requirements:
       ExtUtils::MakeMaker 0
@@ -190,6 +190,12 @@ DISTRIBUTIONS
       File::Temp 0.19
       Test::More 0.88
       perl 5.006000
+  Devel-PPPort-3.43
+    pathname: X/XS/XSAWYERX/Devel-PPPort-3.43.tar.gz
+    provides:
+      Devel::PPPort 3.43
+    requirements:
+      ExtUtils::MakeMaker 0
   Dumbbench-0.111
     pathname: B/BD/BDFOY/Dumbbench-0.111.tar.gz
     provides:
@@ -368,10 +374,10 @@ DISTRIBUTIONS
       XSLoader 0
       parent 0
       perl 5.008001
-  Mouse-v2.5.2
-    pathname: S/SK/SKAJI/Mouse-v2.5.2.tar.gz
+  Mouse-v2.5.6
+    pathname: S/SK/SKAJI/Mouse-v2.5.6.tar.gz
     provides:
-      Mouse v2.5.2
+      Mouse v2.5.6
       Mouse::Exporter undef
       Mouse::Meta::Attribute undef
       Mouse::Meta::Class undef
@@ -389,10 +395,10 @@ DISTRIBUTIONS
       Mouse::Meta::TypeConstraint undef
       Mouse::Object undef
       Mouse::PurePerl undef
-      Mouse::Role v2.5.2
-      Mouse::Spec v2.5.2
+      Mouse::Role v2.5.6
+      Mouse::Spec v2.5.6
       Mouse::TypeRegistry undef
-      Mouse::Util v2.5.2
+      Mouse::Util v2.5.6
       Mouse::Util::MetaRole undef
       Mouse::Util::TypeConstraints undef
       Squirrel undef
@@ -475,10 +481,10 @@ DISTRIBUTIONS
       Sub::Exporter::Progressive 0.001013
     requirements:
       ExtUtils::MakeMaker 0
-  Template-Toolkit-2.27
-    pathname: A/AB/ABW/Template-Toolkit-2.27.tar.gz
+  Template-Toolkit-2.28
+    pathname: A/AT/ATOOMIC/Template-Toolkit-2.28.tar.gz
     provides:
-      Template 2.27
+      Template 2.28
       Template::Base 2.78
       Template::Config 2.75
       Template::Constants 2.75
