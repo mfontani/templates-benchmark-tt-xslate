@@ -20,21 +20,25 @@ results_1_pat=$(foreach output_type,$(output_types),results/1.$(output_type).%.j
 results_files_5 := $(foreach output_type,$(output_types),$(foreach test,$(tests),results/5.$(output_type).$(test).json))
 results_5_pat=$(foreach output_type,$(output_types),results/5.$(output_type).%.json)
 
-all: benchmark-0.5 benchmark-1 benchmark-5
+all: $(results_files_05) $(results_files_1) $(results_files_5)
 
-all-w: benchmark-0.5w benchmark-1w benchmark-5w
+report: benchmark-0.5 benchmark-1 benchmark-5
+report-w: benchmark-0.5w benchmark-1w benchmark-5w
 
 .PHONY: dumb
 dumb:
 	carton exec perl benchmark.pl -D -C -S
 
-$(results_05_pat):
+.SECONDEXPANSION:
+$(results_05_pat): data/%.json tt_templates/%.tt tx_templates/%.tx $$(wildcard tt_templates/%_*.tt) $$(wildcard tx_templates/%_*.tx)
 	carton exec perl benchmark.pl -f 0.5 -C -S $(patsubst TX.%,%,$(patsubst TT.%,%,$(patsubst TXC.%,%,$(patsubst TXSHM.%,%,$(patsubst TTSHM.%,%,$(patsubst results/0.5.%.json,%, $@))))))
 
-$(results_1_pat):
+.SECONDEXPANSION:
+$(results_1_pat): data/%.json tt_templates/%.tt tx_templates/%.tx $$(wildcard tt_templates/%_*.tt) $$(wildcard tx_templates/%_*.tx)
 	carton exec perl benchmark.pl -f 1 -C -S $(patsubst TX.%,%,$(patsubst TT.%,%,$(patsubst TXC.%,%,$(patsubst TXSHM.%,%,$(patsubst TTSHM.%,%,$(patsubst results/1.%.json,%, $@))))))
 
-$(results_5_pat):
+.SECONDEXPANSION:
+$(results_5_pat): data/%.json tt_templates/%.tt tx_templates/%.tx $$(wildcard tt_templates/%_*.tt) $$(wildcard tx_templates/%_*.tx)
 	carton exec perl benchmark.pl -f 5 -C -S $(patsubst TX.%,%,$(patsubst TT.%,%,$(patsubst TXC.%,%,$(patsubst TXSHM.%,%,$(patsubst TTSHM.%,%,$(patsubst results/5.%.json,%, $@))))))
 
 .PHONY: benchmark-0.5
