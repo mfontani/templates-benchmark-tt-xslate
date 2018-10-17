@@ -305,6 +305,20 @@ sub sanity_check {
     }
 }
 
+sub _highest_width_for_tests {
+    state $highest = do {
+        my @jsons    = reverse glob './data/*.json';
+        my $_highest = 0;
+        for my $file (@jsons) {
+            my $base = basename($file) =~ s!\A./data/(.*)[.]json\z!!xmsgr;
+            $_highest = length $base
+                if length $base > $_highest;
+        }
+        $_highest;
+    };
+    return $highest;
+}
+
 sub benchmark {
     my ($base, $json) = @_;
 
@@ -321,7 +335,8 @@ sub benchmark {
     $txc_data   = _benchmark_all('TXC',   $base, \&tx_exec, $TXC,   $tx_file, $json)
         if $CACHE;
 
-    my @cols = ("${RUNTIME}s $base");
+    my $w = _highest_width_for_tests();
+    my @cols = (sprintf "%-4s %-${w}s", "${RUNTIME}s", $base);
     push @cols, ($tt_data->{iterate}, (sprintf '%.2f', $tt_data->{done})) if $WIDE;
     push @cols, sprintf '%.2f', $tt_data->{per_sec};
     push @cols, ($ttshm_data->{iterate}, (sprintf '%.2f', $ttshm_data->{done})) if $TTSHM && $WIDE;
