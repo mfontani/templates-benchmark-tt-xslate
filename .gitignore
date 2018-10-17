@@ -1,5 +1,6 @@
 .tt_cache
 .tx_cache
+.txc_cache
 results/
 tt.out
 tx.out

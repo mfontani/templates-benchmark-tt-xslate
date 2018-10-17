@@ -30,6 +30,7 @@ const my $TX_DIR             => './tx_templates';
 const my $TT_CACHE_DIR       => './.tt_cache';
 const my $TT_SHM_CACHE_DIR   => '/dev/shm/tt_cache';
 const my $TX_CACHE_DIR       => './.tx_cache';
+const my $TXC_CACHE_DIR      => './.txc_cache';
 const my $TX_SHM_CACHE_DIR   => '/dev/shm/tx_cache';
 const my $RESULTS_DIR        => './results';
 const my $RX_NUMBER          => qr!\A\d+(?:[.]\d+)?\z!xms;
@@ -172,7 +173,7 @@ $TXC = Text::Xslate->new(
             return Text::Xslate::mark_raw( $TX->render("$_[0]", $TX->current_vars) );
         },
     },
-    cache_dir => $TX_CACHE_DIR,
+    cache_dir => $TXC_CACHE_DIR,
 );
 
 # Always reset cache directory before each run, to ensure TXC cache => 2
