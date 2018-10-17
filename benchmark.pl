@@ -350,19 +350,19 @@ sub dumb_benchmark {
     sanity_check($base, $tt_file, $tx_file, $json);
 
     my $bench = Dumbbench->new(
-        target_rel_precision => 0.002,
+        target_rel_precision => 0.005,
         initial_runs         => $DEFAULT_ITERATIONS,
     );
     $bench->add_instances(
-        Dumbbench::Instance::PerlSub->new(name => 'TT ', code => sub {
+        Dumbbench::Instance::PerlSub->new(name => 'TT   ', code => sub {
             tt_exec($TT, $tt_file, $json);
         }),
-        Dumbbench::Instance::PerlSub->new(name => 'TX ', code => sub {
+        Dumbbench::Instance::PerlSub->new(name => 'TX   ', code => sub {
             tx_exec($TX, $tx_file, $json);
         }),
     );
     $bench->add_instances(
-        Dumbbench::Instance::PerlSub->new(name => 'TXC', code => sub {
+        Dumbbench::Instance::PerlSub->new(name => 'TXC  ', code => sub {
             tx_exec($TXC, $tx_file, $json);
         }),
     ) if $CACHE;
