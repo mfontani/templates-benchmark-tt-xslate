@@ -37,10 +37,10 @@ results_1_pat=$(foreach output_type,$(output_types),results/1.$(output_type).%.j
 results_files_5 := $(foreach output_type,$(output_types),$(foreach test,$(tests),results/5.$(output_type).$(test).json))
 results_5_pat=$(foreach output_type,$(output_types),results/5.$(output_type).%.json)
 
-all: $(results_files_05) $(results_files_1) $(results_files_5)
+all: $(results_files_05) $(results_files_1)
 
-report: benchmark-0.5 benchmark-1 benchmark-5
-report-w: benchmark-0.5w benchmark-1w benchmark-5w
+report: benchmark-0.5 benchmark-1
+report-w: benchmark-0.5w benchmark-1w
 
 clean:
 	rm -f results/*
