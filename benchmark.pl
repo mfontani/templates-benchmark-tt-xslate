@@ -407,17 +407,17 @@ sub benchmark {
     push @cols, sprintf '%.2f', $txshm_data->{per_sec} if $TXSHM;
     push @cols, sprintf '%.2f', $txc_data->{per_sec} if $CACHE;
     push @cols, sprintf '%+.2f%%', - 100 + $tx_data->{per_sec}    * 100 / $tt_data->{per_sec};
-    push @cols, sprintf '%+.2fx',          $tx_data->{per_sec}          / $tt_data->{per_sec};
+    push @cols, sprintf '%+.2fx',  - 1   + $tx_data->{per_sec}          / $tt_data->{per_sec};
     push @cols, sprintf '%+.2f%%', - 100 + $ttshm_data->{per_sec} * 100 / $tt_data->{per_sec} if $TTSHM;
-    push @cols, sprintf '%+.2fx',          $ttshm_data->{per_sec}       / $tt_data->{per_sec} if $TTSHM;
+    push @cols, sprintf '%+.2fx',  - 1   + $ttshm_data->{per_sec}       / $tt_data->{per_sec} if $TTSHM;
     push @cols, sprintf '%+.2f%%', - 100 + $txshm_data->{per_sec} * 100 / $tt_data->{per_sec} if $TXSHM;
-    push @cols, sprintf '%+.2fx',          $txshm_data->{per_sec}       / $tt_data->{per_sec} if $TXSHM;
+    push @cols, sprintf '%+.2fx',  - 1   + $txshm_data->{per_sec}       / $tt_data->{per_sec} if $TXSHM;
     push @cols, sprintf '%+.2f%%', - 100 + $txshm_data->{per_sec} * 100 / $tx_data->{per_sec} if $TXSHM;
-    push @cols, sprintf '%+.2fx',          $txshm_data->{per_sec}       / $tx_data->{per_sec} if $TXSHM;
+    push @cols, sprintf '%+.2fx',  - 1   + $txshm_data->{per_sec}       / $tx_data->{per_sec} if $TXSHM;
     push @cols, sprintf '%+.2f%%', - 100 + $txc_data->{per_sec}   * 100 / $tt_data->{per_sec} if $CACHE;
-    push @cols, sprintf '%+.2fx',          $txc_data->{per_sec}         / $tt_data->{per_sec} if $CACHE;
+    push @cols, sprintf '%+.2fx',  - 1   + $txc_data->{per_sec}         / $tt_data->{per_sec} if $CACHE;
     push @cols, sprintf '%+.2f%%', - 100 + $txc_data->{per_sec}   * 100 / $tx_data->{per_sec} if $CACHE;
-    push @cols, sprintf '%+.2fx',          $txc_data->{per_sec}         / $tx_data->{per_sec} if $CACHE;
+    push @cols, sprintf '%+.2fx',  - 1   + $txc_data->{per_sec}         / $tx_data->{per_sec} if $CACHE;
     return [ @cols ];
 }
 
