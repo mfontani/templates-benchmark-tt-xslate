@@ -66,6 +66,12 @@ Options:
             Instead of performing iterations up to RUNTIME seconds, use
             Dumbbench with a default of $DEFAULT_ITERATIONS iterations instead.
             Does not output a report, and does not cache the results.
+    -A      ANSI colors and underlines.
+            For each of "/s", "% improvement" and "x times improvement" columns,
+            show the highest value by row in green, lowest in red and second
+            lowest in yellow.
+            For each column, also show the highest value as double underline,
+            and lowest as single underline.
     -w      Wide.
             Also show how many iterations were done, and in how many seconds.
             Useless with -D.
@@ -88,6 +94,7 @@ my ($CACHE)     = grep { $_ eq '-C' }       @ARGV; @ARGV = grep { $_ ne '-C' } @
 my ($DUMBBENCH) = grep { $_ eq '-D' }       @ARGV; @ARGV = grep { $_ ne '-D' } @ARGV;
 my ($WIDE)      = grep { $_ eq '-w' }       @ARGV; @ARGV = grep { $_ ne '-w' } @ARGV;
 my ($USE_SHM)   = grep { $_ eq '-S' }       @ARGV; @ARGV = grep { $_ ne '-S' } @ARGV;
+my ($USE_ANSI)  = grep { $_ eq '-A' }       @ARGV; @ARGV = grep { $_ ne '-A' } @ARGV;
 my ($RUNTIME)   = grep { $_ =~ $RX_NUMBER } @ARGV; @ARGV = grep { $_ !~ $RX_NUMBER } @ARGV;
 $RUNTIME //= $DEFAULT_RUNTIME;
 
@@ -242,7 +249,7 @@ $TXC = Text::Xslate->new(
         say "@bases";
         exit 0;
     }
-    @rows = munge_highest_for(\@cols, \@rows);
+    @rows = ansify_rows(\@cols, \@rows) if $USE_ANSI;
     # say "TT:  Template Toolkit with disk cache";
     # say "TX:  Text::Xslate     with disk cache and cache => 1 (default)";
     # say "TXC: Text::Xslate     with disk cache and cache => 2"
@@ -255,7 +262,7 @@ $TXC = Text::Xslate->new(
 
 exit 0;
 
-sub munge_highest_for {
+sub ansify_rows {
     my ($c, $r) = @_;
 
     my @cols = @$c;
