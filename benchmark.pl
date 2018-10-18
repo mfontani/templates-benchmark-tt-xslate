@@ -291,6 +291,7 @@ sub munge_highest_for {
     my $sort_just_the_number = sub {
         my ($aa, $bb) = @_;
         for ($aa, $bb) {
+            s!\e\[[0-9]*m!!xmsg; # rm ansi codes
             s!\A[+-]? !!xms;
             s!  [%]?\z!!xms;
         }
@@ -317,6 +318,15 @@ sub munge_highest_for {
                 next;
             }
         }
+    }
+
+    # Mark highest & lowest number by COLUMN as underline
+    for my $j (1..$#cols) {
+        my @highest = reverse
+                      sort { $sort_just_the_number->($rows[$a][$j], $rows[$b][$j]) }
+                      0..$#rows;
+        $rows[$highest[ 0]][$j] = "\e[4m$rows[$highest[ 0]][$j]\e[0m";
+        $rows[$highest[-1]][$j] = "\e[4m$rows[$highest[-1]][$j]\e[0m";
     }
 
     return @rows;
