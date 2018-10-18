@@ -151,7 +151,7 @@ $TXSHM = Text::Xslate->new(
         # Xslate's uri filter is a lot faster than this
         # uri => \&URI::XSEscape::uri_escape_utf8,
         runtime_include => sub {
-            return Text::Xslate::mark_raw( $TX->render("$_[0]", $TX->current_vars) );
+            return Text::Xslate::mark_raw( $TXSHM->render("$_[0]", $TXSHM->current_vars) );
         },
     },
     cache_dir => $TX_SHM_CACHE_DIR,
@@ -173,7 +173,7 @@ $TXC = Text::Xslate->new(
         # Xslate's uri filter is a lot faster than this
         # uri => \&URI::XSEscape::uri_escape_utf8,
         runtime_include => sub {
-            return Text::Xslate::mark_raw( $TX->render("$_[0]", $TX->current_vars) );
+            return Text::Xslate::mark_raw( $TXC->render("$_[0]", $TXC->current_vars) );
         },
     },
     cache_dir => $TXC_CACHE_DIR,
