@@ -41,6 +41,7 @@ all: $(results_files_05) $(results_files_1)
 
 report: benchmark-0.5 benchmark-1
 report-w: benchmark-0.5w benchmark-1w
+report-wa: benchmark-0.5wa benchmark-1wa
 
 clean:
 	rm -f results/*
@@ -69,6 +70,10 @@ benchmark-0.5: $(results_files_05)
 benchmark-0.5w: $(results_files_05)
 	carton exec perl benchmark.pl 0.5 -C -w $(ARGS)
 
+.PHONY: benchmark-0.5wa
+benchmark-0.5wa: $(results_files_05)
+	carton exec perl benchmark.pl 0.5 -C -w -A $(ARGS)
+
 .PHONY: benchmark-1
 benchmark-1: $(results_files_1)
 	carton exec perl benchmark.pl 1 -C $(ARGS)
@@ -77,6 +82,10 @@ benchmark-1: $(results_files_1)
 benchmark-1w: $(results_files_1)
 	carton exec perl benchmark.pl 1 -C -w $(ARGS)
 
+.PHONY: benchmark-1wa
+benchmark-1wa: $(results_files_1)
+	carton exec perl benchmark.pl 1 -C -w -A $(ARGS)
+
 .PHONY: benchmark-5
 benchmark-5: $(results_files_5)
 	carton exec perl benchmark.pl 5 -C $(ARGS)
@@ -84,3 +93,7 @@ benchmark-5: $(results_files_5)
 .PHONY: benchmark-5w
 benchmark-5w: $(results_files_5)
 	carton exec perl benchmark.pl 5 -C -w $(ARGS)
+
+.PHONY: benchmark-5wa
+benchmark-5wa: $(results_files_5)
+	carton exec perl benchmark.pl 5 -C -w -A $(ARGS)
