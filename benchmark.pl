@@ -286,6 +286,37 @@ sub munge_highest_for {
             }
         }
     }
+    # Find highest ± for each row and mark it
+    my $sort_just_the_number = sub {
+        my ($aa, $bb) = @_;
+        for ($aa, $bb) {
+            s!\A[+-]? !!xms;
+            s!  [%]?\z!!xms;
+        }
+        $aa <=> $bb;
+    };
+    for my $i (0..$#rows) {
+        my @sorted = reverse
+                     sort { $sort_just_the_number->($a, $b) }
+                     map  { $rows[$i][$_] }
+                     grep { $rows[$i][$_] =~ m!\A[+]\d+[.]\d\d%\z!xms }
+                     grep { $cols[$_] =~ m!±!xms }
+                     0..$#{ $rows[$i] };
+        for (@{ $rows[$i] }) {
+            if ($_ eq $sorted[0]) {
+                $_ = "\e[32m$_\e[0m";
+                next;
+            }
+            if ($_ eq $sorted[-1]) {
+                $_ = "\e[31m$_\e[0m";
+                next;
+            }
+            if ($_ eq $sorted[1]) {
+                $_ = "\e[33m$_\e[0m";
+                next;
+            }
+        }
+    }
     return @rows;
 }
 
