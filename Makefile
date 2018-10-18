@@ -50,6 +50,23 @@ clean:
 dumb:
 	carton exec perl benchmark.pl -D -C
 
+# Force run specific tests for a specific time..
+tests_05 := $(foreach test,$(tests),05_$(test))
+$(tests_05):
+	carton exec perl benchmark.pl -f 0.5 -w -C $(patsubst 05_%,%,$@)
+
+tests_1 := $(foreach test,$(tests),1_$(test))
+$(tests_1):
+	carton exec perl benchmark.pl -f 1 -w -C $(patsubst 1_%,%,$@)
+
+tests_5 := $(foreach test,$(tests),5_$(test))
+$(tests_5):
+	carton exec perl benchmark.pl -f 5 -w -C $(patsubst 5_%,%,$@)
+
+# ... or by default
+$(tests):
+	carton exec perl benchmark.pl -f -w -C $@
+
 .SECONDEXPANSION:
 $(results_05_pat): data/%.json tt_templates/%.tt tx_templates/%.tx $$(wildcard tt_templates/%_*.tt) $$(wildcard tx_templates/%_*.tx)
 	carton exec perl benchmark.pl 0.5 -w -C $(patsubst TX.%,%,$(patsubst TT.%,%,$(patsubst TXC.%,%,$(patsubst TXSHM.%,%,$(patsubst TTSHM.%,%,$(patsubst results/0.5.%.json,%, $@))))))
