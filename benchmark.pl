@@ -236,6 +236,7 @@ $TXC = Text::Xslate->new(
         push @rows, benchmark($base, $json) if !$DUMBBENCH;
         dumb_benchmark($base, $json)        if  $DUMBBENCH;
     }
+    exit 0 if $DUMBBENCH;
     if ($LIST) {
         say "@bases";
         exit 0;
