@@ -1,1 +1,1 @@
-"BLUE [% thing %] [% flavour %]"
+"BLUE [% foo %] [% thing %] [% flavour %]"

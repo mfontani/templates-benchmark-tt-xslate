@@ -1,5 +1,10 @@
 : for $flavours -> $flavour {
 : for $things -> $thing {
-<: $flavour :> <: $thing :>: <: runtime_include("101_runtime_inclusion_dynamic__" ~ $thing ~ ".tx", { thing => $thing, flavour => $flavour }) :>
+<: $foo :> <: $flavour :> <: $thing :>: <:
+    # We cannot just use runtime_include(...) as the current loop context
+    # variables ("$thing" and "$flavour") aren't passed on.
+    # We have to explicitly pass whichever non-top-level variables the
+    # included template needs.
+    runtime_include("101_runtime_inclusion_dynamic__" ~ $thing ~ ".tx", { thing => $thing, flavour => $flavour }) :>
 : }
 : }
