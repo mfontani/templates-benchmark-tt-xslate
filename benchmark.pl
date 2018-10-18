@@ -286,6 +286,7 @@ sub munge_highest_for {
             }
         }
     }
+
     # Find highest ± for each row and mark it
     my $sort_just_the_number = sub {
         my ($aa, $bb) = @_;
@@ -317,6 +318,7 @@ sub munge_highest_for {
             }
         }
     }
+
     return @rows;
 }
 
