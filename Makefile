@@ -44,7 +44,7 @@ report-w: benchmark-0.5w benchmark-1w
 report-wa: benchmark-0.5wa benchmark-1wa
 
 clean:
-	rm -f results/*
+	rm -f results/* *.out
 
 .PHONY: dumb
 dumb:
