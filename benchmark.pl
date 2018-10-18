@@ -310,7 +310,7 @@ sub munge_highest_for {
         my @highest = reverse
                       sort { $sort_just_the_number->($rows[$a][$j], $rows[$b][$j]) }
                       0..$#rows;
-        $rows[$highest[ 0]][$j] = "\e[4m$rows[$highest[ 0]][$j]\e[0m";
+        $rows[$highest[ 0]][$j] = "\e[21m$rows[$highest[ 0]][$j]\e[0m";
         $rows[$highest[-1]][$j] = "\e[4m$rows[$highest[-1]][$j]\e[0m";
     }
 
