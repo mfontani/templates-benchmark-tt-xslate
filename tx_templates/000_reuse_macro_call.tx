@@ -1,0 +1,8 @@
+: macro foo -> $thing {
+: if $thing == 1 { 'one' } else { 'not one' }; '!';
+: }
+: foo(1);
+: foo(2);
+: my $xxx = foo(1);
+: my $yyy = foo(2);
+: $xxx; $yyy; $xxx; $yyy;
