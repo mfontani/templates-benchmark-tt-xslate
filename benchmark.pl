@@ -213,11 +213,12 @@ $TXC = Text::Xslate->new(
     push @cols, ('TXSHM done', 'TXSHM seconds') if $TXSHM && $WIDE;
     push @cols, 'TXSHM/s' if $TXSHM;
     push @cols, 'TXC/s'   if $CACHE;
-    push @cols, "±TX/TT\n&num";
-    push @cols, "±TTSHM/TT\n&num" if $TTSHM;
-    push @cols, "±TXSHM/TT\n&num" if $TXSHM;
-    push @cols, "±TXSHM/TX\n&num" if $TXSHM;
-    push @cols, ("±TXC/TT\n&num", "±TXC/TX\n&num") if $CACHE;
+    push @cols, ("±TX/TT\n&num", "±TX/TTx\n&num");
+    push @cols, ("±TTSHM/TT\n&num", "±TTSHM/TTx\n&num") if $TTSHM;
+    push @cols, ("±TXSHM/TT\n&num", "±TXSHM/TTx\n&num") if $TXSHM;
+    push @cols, ("±TXSHM/TX\n&num", "±TXSHM/TXx\n&num") if $TXSHM;
+    push @cols, ("±TXC/TT\n&num",   "±TXC/TTx\n&num")   if $CACHE;
+    push @cols, ("±TXC/TX\n&num",   "±TXC/TXx\n&num")   if $CACHE;
     my $table       = Text::Table->new(@cols);
     my @jsons       = reverse glob './data/*.json';
     my %wants_tests = map { $_ => 1 } @ARGV;
@@ -260,64 +261,48 @@ sub munge_highest_for {
     my @cols = @$c;
     my @rows = @$r;
 
-    # Find highest /s for each row, and mark it as such
-    for my $i (0..$#rows) {
-        my @sorted = reverse
-                     sort { $a <=> $b }
-                     map  { $rows[$i][$_] }
-                     grep { $rows[$i][$_] =~ m!\A\d+[.]\d\d\z!xms }
-                     # Don't look at "done" or "seconds" cols
-                     # grep { $cols[$_] !~ m!(?: done | seconds )!xms }
-                     grep { $cols[$_] =~ m!/s!xms }
-                     0..$#{ $rows[$i] };
-        # Mark highest by row with colors
-        for (@{ $rows[$i] }) {
-            if ($_ eq $sorted[0]) {
-                $_ = "\e[32m$_\e[0m";
-                next;
-            }
-            if ($_ eq $sorted[-1]) {
-                $_ = "\e[31m$_\e[0m";
-                next;
-            }
-            if ($_ eq $sorted[1]) {
-                $_ = "\e[33m$_\e[0m";
-                next;
-            }
-        }
-    }
-
-    # Find highest ± for each row and mark it
     my $sort_just_the_number = sub {
         my ($aa, $bb) = @_;
         for ($aa, $bb) {
             s!\e\[[0-9]*m!!xmsg; # rm ansi codes
+            s!x\z!!xms;          # trailing x
             s!\A[+-]? !!xms;
             s!  [%]?\z!!xms;
         }
         $aa <=> $bb;
     };
+
+    # Find highest /s for each row, and mark it as such
     for my $i (0..$#rows) {
         my @sorted = reverse
-                     sort { $sort_just_the_number->($a, $b) }
-                     map  { $rows[$i][$_] }
-                     grep { $rows[$i][$_] =~ m!\A[+]\d+[.]\d\d%\z!xms }
-                     grep { $cols[$_] =~ m!±!xms }
-                     0..$#{ $rows[$i] };
-        for (@{ $rows[$i] }) {
-            if ($_ eq $sorted[0]) {
-                $_ = "\e[32m$_\e[0m";
-                next;
-            }
-            if ($_ eq $sorted[-1]) {
-                $_ = "\e[31m$_\e[0m";
-                next;
-            }
-            if ($_ eq $sorted[1]) {
-                $_ = "\e[33m$_\e[0m";
-                next;
-            }
-        }
+                     sort { $sort_just_the_number->($rows[$i][$a], $rows[$i][$b]) }
+                     grep { $_ && $cols[$_] =~ m!/s\z!xms }
+                     1..$#cols;
+        $rows[$i][$sorted[ 0]] = "\e[32m$rows[$i][$sorted[ 0]]\e[0m";
+        $rows[$i][$sorted[-1]] = "\e[31m$rows[$i][$sorted[-1]]\e[0m";
+        $rows[$i][$sorted[ 1]] = "\e[33m$rows[$i][$sorted[ 1]]\e[0m";
+    }
+
+    # Find highest x$ for each row, and mark it as such
+    for my $i (0..$#rows) {
+        my @sorted = reverse
+                     sort { $sort_just_the_number->($rows[$i][$a], $rows[$i][$b]) }
+                     grep { $_ && $cols[$_] =~ m!x\s!xms }
+                     1..$#cols;
+        $rows[$i][$sorted[ 0]] = "\e[32m$rows[$i][$sorted[ 0]]\e[0m";
+        $rows[$i][$sorted[-1]] = "\e[31m$rows[$i][$sorted[-1]]\e[0m";
+        $rows[$i][$sorted[ 1]] = "\e[33m$rows[$i][$sorted[ 1]]\e[0m";
+    }
+
+    # Find highest ± for each row and mark it
+    for my $i (0..$#rows) {
+        my @sorted = reverse
+                     sort { $sort_just_the_number->($rows[$i][$a], $rows[$i][$b]) }
+                     grep { $_ && $cols[$_] =~ m!±!xms }
+                     0..$#cols;
+        $rows[$i][$sorted[ 0]] = "\e[32m$rows[$i][$sorted[ 0]]\e[0m";
+        $rows[$i][$sorted[-1]] = "\e[31m$rows[$i][$sorted[-1]]\e[0m";
+        $rows[$i][$sorted[ 1]] = "\e[33m$rows[$i][$sorted[ 1]]\e[0m";
     }
 
     # Mark highest & lowest number by COLUMN as underline
@@ -415,13 +400,17 @@ sub benchmark {
     push @cols, sprintf '%.2f', $txshm_data->{per_sec} if $TXSHM;
     push @cols, sprintf '%.2f', $txc_data->{per_sec} if $CACHE;
     push @cols, sprintf '%+.2f%%', - 100 + $tx_data->{per_sec}    * 100 / $tt_data->{per_sec};
+    push @cols, sprintf '%+.2fx',          $tx_data->{per_sec}          / $tt_data->{per_sec};
     push @cols, sprintf '%+.2f%%', - 100 + $ttshm_data->{per_sec} * 100 / $tt_data->{per_sec} if $TTSHM;
+    push @cols, sprintf '%+.2fx',          $ttshm_data->{per_sec}       / $tt_data->{per_sec} if $TTSHM;
     push @cols, sprintf '%+.2f%%', - 100 + $txshm_data->{per_sec} * 100 / $tt_data->{per_sec} if $TXSHM;
+    push @cols, sprintf '%+.2fx',          $txshm_data->{per_sec}       / $tt_data->{per_sec} if $TXSHM;
     push @cols, sprintf '%+.2f%%', - 100 + $txshm_data->{per_sec} * 100 / $tx_data->{per_sec} if $TXSHM;
-    push @cols, sprintf '%+.2f%%', - 100 + $txc_data->{per_sec}   * 100 / $tt_data->{per_sec}
-        if $CACHE;
-    push @cols, sprintf '%+.2f%%', - 100 + $txc_data->{per_sec}   * 100 / $tx_data->{per_sec}
-        if $CACHE;
+    push @cols, sprintf '%+.2fx',          $txshm_data->{per_sec}       / $tx_data->{per_sec} if $TXSHM;
+    push @cols, sprintf '%+.2f%%', - 100 + $txc_data->{per_sec}   * 100 / $tt_data->{per_sec} if $CACHE;
+    push @cols, sprintf '%+.2fx',          $txc_data->{per_sec}         / $tt_data->{per_sec} if $CACHE;
+    push @cols, sprintf '%+.2f%%', - 100 + $txc_data->{per_sec}   * 100 / $tx_data->{per_sec} if $CACHE;
+    push @cols, sprintf '%+.2fx',          $txc_data->{per_sec}         / $tx_data->{per_sec} if $CACHE;
     return [ @cols ];
 }
 
