@@ -1,0 +1,5 @@
+: for $flavours -> $flavour {
+: for $things -> $thing {
+<: $flavour :> <: $thing :>: <: runtime_include("101_runtime_inclusion_dynamic__" ~ $thing ~ ".tx", { thing => $thing, flavour => $flavour }) :>
+: }
+: }

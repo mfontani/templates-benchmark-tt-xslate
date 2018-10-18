@@ -1,0 +1,5 @@
+[% FOR flavour IN flavours -%]
+[% FOR thing IN things -%]
+[% flavour %] [% thing %]: [% INCLUDE "101_runtime_inclusion_dynamic__${thing}.tt" %]
+[% END -%]
+[% END -%]
