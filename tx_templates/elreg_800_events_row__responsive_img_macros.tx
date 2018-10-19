@@ -1,0 +1,68 @@
+: macro responsive_img_srcset_and_sizes -> ($dimensions, $lazy, $image_src_sans_query) {
+:   '    ';
+:   if ($lazy) {
+:       'data-';
+:   }
+:   'srcset="' | mark_raw;
+:   for $dimensions -> $size {
+:       if (!$size.value.sizes_only) {
+:           if ($size.value.default) {
+:               $image_src_sans_query; '?x=' | mark_raw; $size.value.default.x; '&amp;y=' | mark_raw; $size.value.default.y; '&amp;crop=1 ' | mark_raw; $size.value.default.x; 'w';
+:               if ($size.value.retina || !$~size.is_last) {
+:                   ', ' | mark_raw;
+:               }
+:           }
+:           if ($size.value.retina) {
+:               $image_src_sans_query; '?x=' | mark_raw; $size.value.retina.x; '&amp;y=' | mark_raw; $size.value.retina.y; '&amp;crop=1 ' | mark_raw; $size.value.retina.x; 'w';
+:               if (!$~size.is_last) {
+:                   ', ' | mark_raw;
+:               }
+:           }
+:       }
+:   }
+:   '"' | mark_raw;
+:   "\n    " | mark_raw;
+:   'sizes="' | mark_raw;
+:   for $dimensions -> $size {
+:       if ($size.key != 'desktop') {
+:           '(max-width: '; $size.key; 'px) '; $size.value.default.x; 'px, ';
+:       } else {
+:           $size.value.default.x; 'px"' | mark_raw;
+:       }
+:   }
+: }
+:
+: macro responsive_img -> ($regmedia_src, $opts) {
+:   my $placeholder_img_src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+:   my $qs                  = '?x=' ~ $opts.width ~ '&amp;y=' ~ $opts.height ~ '&amp;crop=1' | mark_raw;
+:   my $lazy                = $opts.lazy_load;
+:   my $classes             = $lazy ? $opts.classes ~ ' lazy' : $opts.classes;
+:   if (!$opts.picture_tag) {
+        <img width="<: $opts.width :>" height="<: $opts.height :>" alt="<: $opts.alt :>"
+        src="<: if ($lazy && $opts.dimension) { $placeholder_img_src } else { $regmedia_src ~ $qs | mark_raw } :>"
+        class="<: $classes :>"
+:       if ($lazy && $opts.dimensions) {
+            data-src="<: $regmedia_src :><: $qs | mark_raw :>" srcset="<: $placeholder_img_src :> 1w"
+:       }
+:       if ($opts.dimensions) {
+:           responsive_img_srcset_and_sizes($opts.dimensions, $opts.lazy_load, $regmedia_src);
+:       }
+:       ">\n" | mark_raw;
+:   } else {
+        <picture>
+:           '<source' | mark_raw;
+:           responsive_img_srcset_and_sizes($opts.dimensions, 0, $regmedia_src);
+:           if ($opts.picture_tag.breakpoint) {
+:               ' media="(min-width: '; $opts.picture_tag.breakpoint; ')"';
+:           }
+:           '>' | mark_raw;
+:           if ($opts.picture_tag.show_placeholder_img_src) {
+            <source srcset="<: $placeholder_img_src :>" media="(min-width: 1px)">
+:           }
+            <img src="<: $regmedia_src :><: $qs :>" alt="<: $opts.alt :>"
+            width="<: $opts.width :>" height="<: $opts.height :>">
+        </picture>
+:   }
+: }
+: 
+: responsive_img($regmedia_src, $opts);

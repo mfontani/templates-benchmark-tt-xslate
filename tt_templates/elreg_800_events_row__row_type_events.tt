@@ -1,0 +1,66 @@
+[%-
+PROCESS elreg_800_events_row__responsive_img_macros.tt;
+MACRO event_logo_img(event_type) BLOCK;
+    SET event_types_logos = {
+        lecture    => [ 'icons/lecture_logo',     'Reg Lectures logo' ],
+        m3         => [ 'icons/m3_logo',          'Minds Mastering Machines logo' ],
+        cll        => [ 'icons/cll_logo',         'Continuous Lifecycle London logo' ],
+        serverless => [ 'icons/serverless_logo',  'Serverless logo' ],
+        default    => [ 'icon/vulture_white.svg', 'El Reg' ]
+    };
+    SET event_type_key      = event_types_logos.exists(event_type) ? event_type : 'default';
+    SET event_type_logo_src = event_types_logos.$event_type_key.0;
+    SET event_type_logo_alt = event_types_logos.$event_type_key.1 %]
+    <div class="logo_wrapper">[%
+    IF event_type_key == 'default' %]
+        <img width="163" height="40" class="event_logo" src="/design_picker/d2e337b97204af4aa34dda04c4e5d56d954b216f/graphics/[% event_type_logo_src %]" alt="[% event_type_logo_alt %]">[%
+    ELSE %]
+        <img width="163" height="40" class="event_logo" srcset="/design_picker/d2e337b97204af4aa34dda04c4e5d56d954b216f/graphics/[% event_type_logo_src %]326x80.png" src="/design_picker/d2e337b97204af4aa34dda04c4e5d56d954b216f/graphics/[% event_type_logo_src %]163x40.png" alt="[% event_type_logo_alt %]">[%
+    END %]
+    </div>[%
+END;
+
+MACRO event_unit(event) BLOCK;
+SET event_img_dimensions = {
+        '414' => { default => {x => '150', y => '100'}, retina => {x => '300', y => '200'} },
+    'desktop' => { default => {x => '174', y => '115'}, retina => {x => '378', y => '250'} }
+};
+SET event_type = event.event_type %]
+<article class="[% event_type | html %]">
+    <a href="[% event.url | html %]">
+        <div class="event_imagery">[%
+            IF !compact_mode %]
+            <div class="event_img_wrapper">[%
+                responsive_img(regmedia_base _ event.image.url, {
+                    dimensions => event_img_dimensions,
+                    hide_image => 0,
+                    lazy_load => 1,
+                    classes => 'event_img',
+                    width => 378,
+                    height => 250
+                }) %]
+            </div>[%
+            END;
+            SET event_types_logos = {
+                lecture    => [ 'icons/lecture_event_logo.svg', 'Reg Lectures logo' ],
+                m3         => [ 'icons/m3_logo.svg',            'Minds Mastering Machines logo' ],
+                cll        => [ 'icons/cll_logo.svg',           'Continuous Lifecycle London logo' ],
+                serverless => [ 'icons/serverless_logo.svg',    'Serverless logo' ],
+                default    => [ 'icon/vulture_white.svg',       'El Reg' ]
+            };
+            SET event_type_key = event_types_logos.exists(event_type) ? event_type : 'default';
+            SET event_type_logo_src = event_types_logos.$event_type_key.0;
+            SET event_type_logo_alt = event_types_logos.$event_type_key.1 %]
+            <div class="logo_wrapper">
+                <img width="171" height="40" class="event_logo" src="/design_picker/d2e337b97204af4aa34dda04c4e5d56d954b216f/graphics/[% event_type_logo_src %]" alt="[% event_type_logo_alt %]">
+            </div>
+        </div>
+        <div class="article_text_elements">
+            <h4>[% event.title | html %]</h4>
+            <p>[% event.subtitle | html | replace("'", "&#39;") %]</p>
+            <div class="arrow_right">Read more</div>
+        </div>
+    </a>
+</article>[%
+END;
+-%]

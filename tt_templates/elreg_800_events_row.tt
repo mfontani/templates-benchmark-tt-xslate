@@ -1,0 +1,10 @@
+[%-
+IF events.size && events.size >= 2;
+    PROCESS 'elreg_800_events_row__row_type_events.tt'; -%]
+<div class="srow rt-6a">[%
+    event_unit(events.0);
+    event_unit(events.1); %]
+</div>
+[%
+END;
+-%]

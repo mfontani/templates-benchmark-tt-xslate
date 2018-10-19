@@ -1,0 +1,47 @@
+: macro event_unit -> ($event) {
+:   my $event_img_dimensions = [
+:       { key => '414',     value => { default => {x => '150', y => '100'}, retina => {x => '300', y => '200'} } },
+:       { key => 'desktop', value => { default => {x => '174', y => '115'}, retina => {x => '378', y => '250'} } },
+:   ];
+:   my $event_type = $event.event_type;
+<article class="<: $event_type :>">
+    <a href="<: $event.url :>">
+        <div class="event_imagery">
+:           if (!$compact_mode) {
+            <div class="event_img_wrapper">
+:               include "elreg_800_events_row__responsive_img_macros.tx" {
+:                   regmedia_src => $regmedia_base ~ $event.image.url,
+:                   opts         => {
+:                       dimensions => $event_img_dimensions,
+:                       hide_image => 0,
+:                       lazy_load  => 1,
+:                       classes    => 'event_img',
+:                       width      => 378,
+:                       height     => 250,
+:                   }
+:               };
+            </div>
+:           }
+:           my $event_types_logos = {
+:               lecture    => [ 'icons/lecture_event_logo.svg', 'Reg Lectures logo' ],
+:               m3         => [ 'icons/m3_logo.svg',            'Minds Mastering Machines logo' ],
+:               cll        => [ 'icons/cll_logo.svg',           'Continuous Lifecycle London logo' ],
+:               serverless => [ 'icons/serverless_logo.svg',    'Serverless logo' ],
+:               default    => [ 'icon/vulture_white.svg',       'El Reg' ]
+:           };
+:           my $event_type_key      = $event_types_logos.exists($event_type) ? $event_type : 'default';
+:           my $event_type_logo_src = $event_types_logos[$event_type_key].0;
+:           my $event_type_logo_alt = $event_types_logos[$event_type_key].1;
+            <div class="logo_wrapper">
+                <img width="171" height="40" class="event_logo" src="/design_picker/d2e337b97204af4aa34dda04c4e5d56d954b216f/graphics/<: $event_type_logo_src :>" alt="<: $event_type_logo_alt :>">
+            </div>
+        </div>
+        <div class="article_text_elements">
+            <h4><: $event.title :></h4>
+            <p><: $event.subtitle :></p>
+            <div class="arrow_right">Read more</div>
+        </div>
+    </a>
+</article>
+: }
+: event_unit($event);

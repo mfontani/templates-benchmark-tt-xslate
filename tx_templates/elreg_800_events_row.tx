@@ -1,0 +1,8 @@
+: if $events && $events.size() >= 2 {
+<div class="srow rt-6a">
+:   my $first_event  = $events[0];
+:   my $second_event = $events[1];
+:  include "elreg_800_events_row__row_type_events.tx" { event => $first_event  };
+:  include "elreg_800_events_row__row_type_events.tx" { event => $second_event };
+</div>
+: }

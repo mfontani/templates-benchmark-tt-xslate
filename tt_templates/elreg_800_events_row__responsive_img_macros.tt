@@ -1,0 +1,56 @@
+[%-
+MACRO responsive_img_srcset_and_sizes(dimensions, lazy, image_src_sans_query) BLOCK %]
+    [% IF lazy %]data-[% END %]srcset="[%~
+    FOREACH size IN dimensions;
+        IF !size.value.sizes_only;
+            IF size.value.default;
+                image_src_sans_query %]?x=[% size.value.default.x %]&amp;y=[% size.value.default.y %]&amp;crop=1 [% size.value.default.x %]w[%~
+                IF size.value.retina || !loop.last %], [% END;
+            END;
+            IF size.value.retina;
+                image_src_sans_query %]?x=[% size.value.retina.x %]&amp;y=[% size.value.retina.y %]&amp;crop=1 [% size.value.retina.x %]w[%~
+                IF !loop.last %], [% END ~%]
+            [%~ END;
+        END;
+    END %]"
+    sizes="[%~
+    FOREACH size IN dimensions;
+        IF size.key != 'desktop' ~%]
+        (max-width: [% size.key %]px) [% size.value.default.x %]px, [%
+        ELSE;
+        size.value.default.x %]px"[%-
+        END;
+    END;
+END;
+
+MACRO responsive_img(regmedia_src, opts) BLOCK;
+    SET placeholder_img_src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+    SET qs                  = "?x=$opts.width&amp;y=$opts.height&amp;crop=1";
+    SET lazy                = opts.lazy_load;
+    SET classes             = opts.classes;
+    IF lazy && opts.dimensions;
+        classes = classes _ ' lazy';
+    END;
+    IF !opts.picture_tag %]
+        <img width="[% opts.width %]" height="[% opts.height %]" alt="[% opts.alt | html %]"
+        src="[% lazy && opts.dimension ? placeholder_img_src : regmedia_src _ qs %]"
+        class="[% classes %]"[%~
+        IF lazy && opts.dimensions %]
+            data-src="[% regmedia_src; qs %]" srcset="[% placeholder_img_src %] 1w"[%-
+        END;
+        IF opts.dimensions;
+            responsive_img_srcset_and_sizes(opts.dimensions, opts.lazy_load, regmedia_src);
+        END ~%]>[%-
+    ELSE %]
+        <picture>
+            <source [% responsive_img_srcset_and_sizes(opts.dimensions, 0, regmedia_src);
+            IF opts.picture_tag.breakpoint %] media="(min-width: [% opts.picture_tag.breakpoint %])"[% END %]>[%-
+            IF opts.picture_tag.show_placeholder_img_src %]
+            <source srcset="[% placeholder_img_src %]" media="(min-width: 1px)">[%-
+            END %]
+            <img src="[% regmedia_src; qs %]" alt="[% opts.alt | html %]"
+            width="[% opts.width %]" height="[% opts.height %]">
+        </picture>[%-
+    END;
+END;
+-%]
