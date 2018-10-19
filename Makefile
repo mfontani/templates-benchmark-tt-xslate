@@ -23,7 +23,7 @@ tests := $(patsubst data/%.json,%, $(data_files))
 
 # The output goes in results/DURATION.OUTPUT_TYPE.TEST_NAME.json
 # These are the "OUTPUT_TYPE":
-output_types := TT TX TXC
+output_types := TT TX
 
 # 05: Test each for a max of 0.5 seconds
 results_files_05 := $(foreach output_type,$(output_types),$(foreach test,$(tests),results/0.5.$(output_type).$(test).json))
@@ -48,69 +48,69 @@ clean:
 
 .PHONY: dumb
 dumb:
-	carton exec perl benchmark.pl -D -C
+	carton exec perl benchmark.pl -D
 
 # Force run specific tests for a specific time..
 tests_05 := $(foreach test,$(tests),05_$(test))
 $(tests_05):
-	carton exec perl benchmark.pl -f 0.5 -w -C $(patsubst 05_%,%,$@)
+	carton exec perl benchmark.pl -f 0.5 -w $(patsubst 05_%,%,$@)
 
 tests_1 := $(foreach test,$(tests),1_$(test))
 $(tests_1):
-	carton exec perl benchmark.pl -f 1 -w -C $(patsubst 1_%,%,$@)
+	carton exec perl benchmark.pl -f 1 -w $(patsubst 1_%,%,$@)
 
 tests_5 := $(foreach test,$(tests),5_$(test))
 $(tests_5):
-	carton exec perl benchmark.pl -f 5 -w -C $(patsubst 5_%,%,$@)
+	carton exec perl benchmark.pl -f 5 -w $(patsubst 5_%,%,$@)
 
 # ... or by default
 $(tests):
-	carton exec perl benchmark.pl -f -w -C $@
+	carton exec perl benchmark.pl -f -w $@
 
 .SECONDEXPANSION:
 $(results_05_pat): data/%.json tt_templates/%.tt tx_templates/%.tx $$(wildcard tt_templates/%_*.tt) $$(wildcard tx_templates/%_*.tx)
-	carton exec perl benchmark.pl 0.5 -w -C $(patsubst TX.%,%,$(patsubst TT.%,%,$(patsubst TXC.%,%,$(patsubst TXSHM.%,%,$(patsubst TTSHM.%,%,$(patsubst results/0.5.%.json,%, $@))))))
+	carton exec perl benchmark.pl 0.5 -w $(patsubst TX.%,%,$(patsubst TT.%,%,$(patsubst TXC.%,%,$(patsubst TXSHM.%,%,$(patsubst TTSHM.%,%,$(patsubst results/0.5.%.json,%, $@))))))
 
 .SECONDEXPANSION:
 $(results_1_pat): data/%.json tt_templates/%.tt tx_templates/%.tx $$(wildcard tt_templates/%_*.tt) $$(wildcard tx_templates/%_*.tx)
-	carton exec perl benchmark.pl 1 -w -C $(patsubst TX.%,%,$(patsubst TT.%,%,$(patsubst TXC.%,%,$(patsubst TXSHM.%,%,$(patsubst TTSHM.%,%,$(patsubst results/1.%.json,%, $@))))))
+	carton exec perl benchmark.pl 1 -w $(patsubst TX.%,%,$(patsubst TT.%,%,$(patsubst TXC.%,%,$(patsubst TXSHM.%,%,$(patsubst TTSHM.%,%,$(patsubst results/1.%.json,%, $@))))))
 
 .SECONDEXPANSION:
 $(results_5_pat): data/%.json tt_templates/%.tt tx_templates/%.tx $$(wildcard tt_templates/%_*.tt) $$(wildcard tx_templates/%_*.tx)
-	carton exec perl benchmark.pl 5 -w -C $(patsubst TX.%,%,$(patsubst TT.%,%,$(patsubst TXC.%,%,$(patsubst TXSHM.%,%,$(patsubst TTSHM.%,%,$(patsubst results/5.%.json,%, $@))))))
+	carton exec perl benchmark.pl 5 -w $(patsubst TX.%,%,$(patsubst TT.%,%,$(patsubst TXC.%,%,$(patsubst TXSHM.%,%,$(patsubst TTSHM.%,%,$(patsubst results/5.%.json,%, $@))))))
 
 .PHONY: benchmark-0.5
 benchmark-0.5: $(results_files_05)
-	carton exec perl benchmark.pl 0.5 -C $(ARGS)
+	carton exec perl benchmark.pl 0.5 $(ARGS)
 
 .PHONY: benchmark-0.5w
 benchmark-0.5w: $(results_files_05)
-	carton exec perl benchmark.pl 0.5 -C -w $(ARGS)
+	carton exec perl benchmark.pl 0.5 -w $(ARGS)
 
 .PHONY: benchmark-0.5wa
 benchmark-0.5wa: $(results_files_05)
-	carton exec perl benchmark.pl 0.5 -C -w -A $(ARGS)
+	carton exec perl benchmark.pl 0.5 -w -A $(ARGS)
 
 .PHONY: benchmark-1
 benchmark-1: $(results_files_1)
-	carton exec perl benchmark.pl 1 -C $(ARGS)
+	carton exec perl benchmark.pl 1 $(ARGS)
 
 .PHONY: benchmark-1w
 benchmark-1w: $(results_files_1)
-	carton exec perl benchmark.pl 1 -C -w $(ARGS)
+	carton exec perl benchmark.pl 1 -w $(ARGS)
 
 .PHONY: benchmark-1wa
 benchmark-1wa: $(results_files_1)
-	carton exec perl benchmark.pl 1 -C -w -A $(ARGS)
+	carton exec perl benchmark.pl 1 -w -A $(ARGS)
 
 .PHONY: benchmark-5
 benchmark-5: $(results_files_5)
-	carton exec perl benchmark.pl 5 -C $(ARGS)
+	carton exec perl benchmark.pl 5 $(ARGS)
 
 .PHONY: benchmark-5w
 benchmark-5w: $(results_files_5)
-	carton exec perl benchmark.pl 5 -C -w $(ARGS)
+	carton exec perl benchmark.pl 5 -w $(ARGS)
 
 .PHONY: benchmark-5wa
 benchmark-5wa: $(results_files_5)
-	carton exec perl benchmark.pl 5 -C -w -A $(ARGS)
+	carton exec perl benchmark.pl 5 -w -A $(ARGS)
