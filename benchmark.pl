@@ -285,9 +285,9 @@ sub ansify_rows {
                      sort { $sort_just_the_number->($rows[$i][$a], $rows[$i][$b]) }
                      grep { $_ && $cols[$_] =~ m!/s\z!xms }
                      1..$#cols;
-        $rows[$i][$sorted[ 0]] = "\e[32m$rows[$i][$sorted[ 0]]\e[0m";
-        $rows[$i][$sorted[-1]] = "\e[31m$rows[$i][$sorted[-1]]\e[0m";
-        $rows[$i][$sorted[ 1]] = "\e[33m$rows[$i][$sorted[ 1]]\e[0m";
+        $rows[$i][$sorted[ 0]] = "\e[32m$rows[$i][$sorted[ 0]]\e[0m" if exists $sorted[0];
+        $rows[$i][$sorted[-1]] = "\e[31m$rows[$i][$sorted[-1]]\e[0m" if exists $sorted[-1];
+        $rows[$i][$sorted[ 1]] = "\e[33m$rows[$i][$sorted[ 1]]\e[0m" if exists $sorted[1];
     }
 
     # Find highest x$ for each row, and mark it as such
@@ -296,9 +296,9 @@ sub ansify_rows {
                      sort { $sort_just_the_number->($rows[$i][$a], $rows[$i][$b]) }
                      grep { $_ && $cols[$_] =~ m!x\s!xms }
                      1..$#cols;
-        $rows[$i][$sorted[ 0]] = "\e[32m$rows[$i][$sorted[ 0]]\e[0m";
-        $rows[$i][$sorted[-1]] = "\e[31m$rows[$i][$sorted[-1]]\e[0m";
-        $rows[$i][$sorted[ 1]] = "\e[33m$rows[$i][$sorted[ 1]]\e[0m";
+        $rows[$i][$sorted[ 0]] = "\e[32m$rows[$i][$sorted[ 0]]\e[0m" if exists $sorted[0];
+        $rows[$i][$sorted[-1]] = "\e[31m$rows[$i][$sorted[-1]]\e[0m" if exists $sorted[-1];
+        $rows[$i][$sorted[ 1]] = "\e[33m$rows[$i][$sorted[ 1]]\e[0m" if exists $sorted[1];
     }
 
     # Find highest ± for each row and mark it
@@ -306,10 +306,10 @@ sub ansify_rows {
         my @sorted = reverse
                      sort { $sort_just_the_number->($rows[$i][$a], $rows[$i][$b]) }
                      grep { $_ && $cols[$_] =~ m!±!xms }
-                     0..$#cols;
-        $rows[$i][$sorted[ 0]] = "\e[32m$rows[$i][$sorted[ 0]]\e[0m";
-        $rows[$i][$sorted[-1]] = "\e[31m$rows[$i][$sorted[-1]]\e[0m";
-        $rows[$i][$sorted[ 1]] = "\e[33m$rows[$i][$sorted[ 1]]\e[0m";
+                     1..$#cols;
+        $rows[$i][$sorted[ 0]] = "\e[32m$rows[$i][$sorted[ 0]]\e[0m" if exists $sorted[0];
+        $rows[$i][$sorted[-1]] = "\e[31m$rows[$i][$sorted[-1]]\e[0m" if exists $sorted[-1];
+        $rows[$i][$sorted[ 1]] = "\e[33m$rows[$i][$sorted[ 1]]\e[0m" if exists $sorted[1];
     }
 
     # Mark highest & lowest number by COLUMN as underline
@@ -317,8 +317,9 @@ sub ansify_rows {
         my @highest = reverse
                       sort { $sort_just_the_number->($rows[$a][$j], $rows[$b][$j]) }
                       0..$#rows;
-        $rows[$highest[ 0]][$j] = "\e[21m$rows[$highest[ 0]][$j]\e[0m";
-        $rows[$highest[-1]][$j] = "\e[4m$rows[$highest[-1]][$j]\e[0m";
+        $rows[$highest[ 0]][$j] = "\e[21m$rows[$highest[ 0]][$j]\e[0m" if exists $highest[0];
+        next if scalar @highest <= 1;
+        $rows[$highest[-1]][$j] = "\e[4m$rows[$highest[-1]][$j]\e[0m"  if exists $highest[-1];
     }
 
     return @rows;
