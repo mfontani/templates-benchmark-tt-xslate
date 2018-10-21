@@ -1,3 +1,4 @@
+requires 'inc::Module::Install' => 0;
 requires 'Const::Fast' => 0;
 requires 'Template' => 0;
 requires 'Text::Xslate' => 0;
