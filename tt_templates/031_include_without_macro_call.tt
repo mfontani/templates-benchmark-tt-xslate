@@ -1,0 +1,5 @@
+<ul>[%
+FOR xurl IN urls %]
+    <li>[%- INCLUDE "031_include_without_macro_call__macrodef.tt" -%]</li>[%
+END %]
+</ul>

@@ -1,0 +1,5 @@
+<ul>
+: for $urls -> $xurl {
+    <li><: include "031_include_without_macro_call__macrodef.tx" { xurl => $xurl } :></li>
+: }
+</ul>
