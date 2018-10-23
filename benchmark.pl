@@ -36,6 +36,7 @@ const my $TXC_CACHE_DIR      => './.txc_cache';
 const my $TX_SHM_CACHE_DIR   => '/dev/shm/tx_cache';
 const my $RESULTS_DIR        => './results';
 const my $RX_NUMBER          => qr!\A\d+(?:[.]\d+)?\z!xms;
+const my $STAT_MTIME_FIELD   => 9;   # perldoc -f stat
 
 mkdir $RESULTS_DIR
     if !-d $RESULTS_DIR;
@@ -472,7 +473,17 @@ sub _benchmark_all {
 
     my $results_file = "$RESULTS_DIR/$RUNTIME.$what.$base.json";
     if (-f $results_file && !$FORCE) {
+        # Ensure the mtime of the $results_file is consistent with (i.e. is
+        # later than) the maximum mtime of the "input" (tt or tx) files
+        my $result_mtime = (stat $results_file)[$STAT_MTIME_FIELD];
+        my $max_mtime    = 0;
+        for my $file ((glob "$TT_DIR/$base*.tt"), (glob "$TX_DIR/$base*.tx")) {
+            my $file_mtime = (stat $file)[$STAT_MTIME_FIELD];
+            $max_mtime = $file_mtime
+                if $file_mtime > $max_mtime;
+        }
         return $JSON->decode(path($results_file)->slurp)
+            if $result_mtime > $max_mtime;
     }
 
     my $t0 = [gettimeofday];
