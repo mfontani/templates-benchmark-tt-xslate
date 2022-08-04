@@ -190,12 +190,6 @@ DISTRIBUTIONS
       File::Temp 0.19
       Test::More 0.88
       perl 5.006000
-  Devel-PPPort-3.43
-    pathname: X/XS/XSAWYERX/Devel-PPPort-3.43.tar.gz
-    provides:
-      Devel::PPPort 3.43
-    requirements:
-      ExtUtils::MakeMaker 0
   Dumbbench-0.111
     pathname: B/BD/BDFOY/Dumbbench-0.111.tar.gz
     provides:
