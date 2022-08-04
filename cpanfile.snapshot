@@ -560,61 +560,59 @@ DISTRIBUTIONS
       Sub::Exporter::Progressive 0.001013
     requirements:
       ExtUtils::MakeMaker 0
-  Template-Toolkit-2.28
-    pathname: A/AT/ATOOMIC/Template-Toolkit-2.28.tar.gz
+  Template-Toolkit-3.100
+    pathname: T/TO/TODDR/Template-Toolkit-3.100.tar.gz
     provides:
-      Template 2.28
-      Template::Base 2.78
-      Template::Config 2.75
-      Template::Constants 2.75
-      Template::Context 2.98
-      Template::Directive 2.2
-      Template::Document 2.79
-      Template::Exception 2.7
-      Template::Filters 2.87
-      Template::Grammar 2.26
-      Template::Iterator 2.68
-      Template::Monad::Assert 1
-      Template::Monad::Scalar 1
-      Template::Namespace::Constants 1.27
-      Template::Parser 2.89
-      Template::Perl 2.87
-      Template::Plugin 2.7
-      Template::Plugin::Assert 1
-      Template::Plugin::CGI 2.7
-      Template::Plugin::Datafile 2.72
-      Template::Plugin::Date 2.78
-      Template::Plugin::Date::Calc 2.78
-      Template::Plugin::Date::Manip 2.78
-      Template::Plugin::Directory 2.7
-      Template::Plugin::Dumper 2.7
-      Template::Plugin::File 2.71
-      Template::Plugin::Filter 1.38
-      Template::Plugin::Format 2.7
-      Template::Plugin::HTML 2.62
-      Template::Plugin::Image 1.21
-      Template::Plugin::Iterator 2.68
-      Template::Plugin::Math 1.16
-      Template::Plugin::Pod 2.69
-      Template::Plugin::Procedural 1.17
-      Template::Plugin::Scalar 1
-      Template::Plugin::String 2.4
-      Template::Plugin::Table 2.71
-      Template::Plugin::URL 2.74
-      Template::Plugin::View 2.68
-      Template::Plugin::Wrap 2.68
-      Template::Plugins 2.77
-      Template::Provider 2.94
-      Template::Service 2.8
-      Template::Stash 2.91
-      Template::Stash::Context 1.63
+      Template 3.100
+      Template::Base 3.100
+      Template::Config 3.100
+      Template::Constants 3.100
+      Template::Context 3.100
+      Template::Directive 3.100
+      Template::Document 3.100
+      Template::Exception 3.100
+      Template::Filters 3.100
+      Template::Grammar 3.100
+      Template::Iterator 3.100
+      Template::Monad::Assert 3.100
+      Template::Monad::Scalar 3.100
+      Template::Namespace::Constants 3.100
+      Template::Parser 3.100
+      Template::Perl 3.100
+      Template::Plugin 3.100
+      Template::Plugin::Assert 3.100
+      Template::Plugin::Datafile 3.100
+      Template::Plugin::Date 3.100
+      Template::Plugin::Date::Calc 3.100
+      Template::Plugin::Date::Manip 3.100
+      Template::Plugin::Directory 3.100
+      Template::Plugin::Dumper 3.100
+      Template::Plugin::File 3.100
+      Template::Plugin::Filter 3.100
+      Template::Plugin::Format 3.100
+      Template::Plugin::HTML 3.100
+      Template::Plugin::Image 3.100
+      Template::Plugin::Iterator 3.100
+      Template::Plugin::Math 3.100
+      Template::Plugin::Pod 3.100
+      Template::Plugin::Procedural 3.100
+      Template::Plugin::Scalar 3.100
+      Template::Plugin::String 3.100
+      Template::Plugin::Table 3.100
+      Template::Plugin::URL 3.100
+      Template::Plugin::View 3.100
+      Template::Plugin::Wrap 3.100
+      Template::Plugins 3.100
+      Template::Provider 3.100
+      Template::Service 3.100
+      Template::Stash 3.100
+      Template::Stash::Context 3.100
       Template::Stash::XS undef
-      Template::Test 2.75
-      Template::TieString 2.75
-      Template::Toolkit undef
-      Template::VMethods 2.16
-      Template::View 2.91
-      bytes 2.94
+      Template::Test 3.100
+      Template::TieString 3.100
+      Template::Toolkit 3.100
+      Template::VMethods 3.100
+      Template::View 3.100
     requirements:
       AppConfig 1.56
       ExtUtils::MakeMaker 0
