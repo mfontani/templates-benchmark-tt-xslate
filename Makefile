@@ -38,6 +38,7 @@ results_files_5 := $(foreach output_type,$(output_types),$(foreach test,$(tests)
 results_5_pat=$(foreach output_type,$(output_types),results/5.$(output_type).%.json)
 
 all: report
+	carton exec perl -MTemplate -MText::Xslate -E'say "TT $$Template::VERSION TX $$Text::Xslate::VERSION"'
 
 report: benchmark-0.5 benchmark-1
 report-w: benchmark-0.5w benchmark-1w
